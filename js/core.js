@@ -43,7 +43,7 @@ export const bus = {
   emit(ev, data) { (handlers[ev] || []).slice().forEach((fn) => fn(data)); },
 };
 
-const DEFAULTS = { wallpaper: "auto", scheme: "classic", saver: "cats", saverWait: 3, sound: true, volume: 0.6, me: true, meVoice: true, meMail: true, meQuiet: false, iconSize: "large", welcome: true };
+const DEFAULTS = { wallpaper: "auto", scheme: "classic", saver: "night", saverWait: 3, sound: true, volume: 0.6, me: true, meVoice: true, meMail: true, meQuiet: false, iconSize: "large", welcome: true };
 export const settings = { ...DEFAULTS, ...store.get("settings", {}) };
 export function setSettings(patch) {
   Object.assign(settings, patch);

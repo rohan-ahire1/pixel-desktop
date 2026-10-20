@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "index.html"
+        ],
+        "createdAt": "2026-10-20T05:58:34.907Z",
+        "reason": "Claude triage: hits are pre-existing os.css marquees — the 90s web-page parody in the Browser app home (.home .marq) and the Tunes LCD song-title scroll; period/domain-appropriate, off under reduced motion"
+      },
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "phone.html"
+        ],
+        "createdAt": "2026-10-20T05:58:34.937Z",
+        "reason": "Claude triage: hits are pre-existing os.css marquees — the 90s web-page parody in the Browser app home (.home .marq) and the Tunes LCD song-title scroll; period/domain-appropriate, off under reduced motion"
+      }
+    ]
+  }
+}
