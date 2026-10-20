@@ -1,14 +1,24 @@
 // The welcome window: typed headline, the orbit, pixel me with tips, and the way into the work.
 import { h, onTick, reduce, settings, setSettings, EMAIL, announce } from "../core.js";
-import { K, px, shadow, disc } from "../px.js";
+import { K, px, shadow, disc, icon } from "../px.js";
 import { GW, GH, drawMe } from "../me-sprite.js";
 import { openWindow } from "../wm.js";
 import { launch, openNode } from "./index.js";
-import { PROJECTS } from "../data.js";
+import { PROJECTS, LINKS } from "../data.js";
 import { WALLPAPERS } from "../wallpaper.js";
 import { sfx } from "../sound.js";
 
-const LINES = ["HELLO, WORLD.", "LET'S BUILD."];
+const LINES = ["ROHAN", "AHIRE."];
+// what a recruiter should get in ten seconds; the numbers are from the résumé
+const ROLE = "Full-stack engineer · Mumbai · Open to remote";
+const SUMMARY = "Software Engineer II at Pattern. Three years shipping SaaS in TypeScript, React, Node and Python, from the first commit to production.";
+const PROOF = [
+  ["67,000+", "ambassadors paid through the commission system I built"],
+  ["48+", "brands billed by the billing and payments system I designed"],
+  ["60s → 0.5s", "query time, after I reworked the indexes"],
+];
+const FEATURED = ["flaggo", "coachmate", "multibagger"];
+const RESUME = "resume.pdf";
 const TIPS = [
   "Hi! I'm Rohan. Double-click any icon on the desktop to open it.",
   "Every project icon opens a real project. No filler.",
@@ -74,8 +84,7 @@ export function open(arg, from) {
 
   const work = () => openNode("projects", cta);
   const l1 = h("span"), l2 = h("span");
-  const cta = h("button", { type: "button", class: "cta", onclick: work, html: "Explore the work " + ARROW });
-  const orbit = h("canvas", { class: "px orbit", width: "180", height: "110", "aria-hidden": "true" });
+  const cta = h("button", { type: "button", class: "cta", onclick: work, html: "See all projects " + ARROW });
   const doc = h("canvas", { class: "px", width: String(GW), height: String(GH + 2), "aria-hidden": "true", style: { width: GW * 3 + "px", height: (GH + 2) * 3 + "px" } });
   const docBtn = h("button", { type: "button", class: "doc-btn", "aria-label": "Pixel Rohan. Click for a tip.", onclick: () => tip() }, doc);
   const startup = h("input", { type: "checkbox", id: "wl-startup" });
@@ -83,7 +92,7 @@ export function open(arg, from) {
   startup.addEventListener("change", () => setSettings({ welcome: startup.checked }));
 
   const w = openWindow({
-    id: "welcome", title: "Welcome to PixelOS", icon: "logo", app: "welcome", w: 860, h: 560, minW: 340, minH: 300, from, bodyClass: "welcome paper",
+    id: "welcome", title: "Welcome to PixelOS", icon: "logo", app: "welcome", w: 900, h: 660, minW: 340, minH: 300, from, bodyClass: "welcome paper",
     menubar: [
       { label: "File", items: () => [
         { label: "Open Projects", icon: "folderStar", action: work },
@@ -113,16 +122,25 @@ export function open(arg, from) {
   });
   if (w.body.childElementCount) return w; // already open
 
+  const ext = (label, href, ic, cls = "btn") => h("a", { class: cls + " wl-link", href, target: href.startsWith("mailto") ? null : "_blank", rel: "noopener" }, icon(ic, { size: 16, scale: 1, still: true }), label);
   w.body.append(
     h("div", { class: "hero" },
       h("div", {},
-        h("h1", { "aria-label": "Hello, world. Let's build." }, h("span", { "aria-hidden": "true" }, l1, h("br"), l2, h("span", { class: "caret" }))),
-        h("p", { class: "lead" }, "I build trading systems, games, and AI tools. End to end, solo."),
-        cta),
+        h("p", { class: "wl-eyebrow" }, ROLE),
+        h("h1", { "aria-label": "Rohan Ahire" }, h("span", { "aria-hidden": "true" }, l1, h("br"), l2, h("span", { class: "caret" }))),
+        h("p", { class: "lead" }, SUMMARY),
+        h("div", { class: "wl-acts" }, ext("Résumé", RESUME, "txt", "btn blue"), ext("Email", "mailto:" + EMAIL, "mail"), ext("GitHub", LINKS.github, "web"), ext("LinkedIn", LINKS.linkedin, "web"))),
       h("div", { class: "art" },
-        orbit,
-        h("div", { class: "doc-wrap" }, bubble, docBtn),
-        h("ul", { class: "focus-list", "aria-label": "What I work on" }, ...["Ideas", "Code", "Systems", "Games", "Tools", "A brighter tomorrow"].map((s) => h("li", {}, s))))),
+        h("div", { class: "doc-wrap" }, bubble, docBtn))),
+    h("ul", { class: "wl-proof", "aria-label": "At work" }, ...PROOF.map(([n, t]) => h("li", {}, h("b", {}, n), h("span", {}, t)))),
+    h("div", { class: "wl-side" },
+      h("h2", {}, "Built on the side"),
+      h("div", { class: "wl-projects" }, ...FEATURED.map((id) => {
+        const p = PROJECTS.find((x) => x.id === id);
+        return h("button", { type: "button", class: "wl-proj", onclick: (e) => openNode(id, e.currentTarget) },
+          icon(p.icon, { size: 32, scale: 1 }), h("span", {}, h("b", {}, p.name), h("small", {}, p.sum)));
+      })),
+      cta),
   );
   w.el.append(h("div", { class: "wfoot", style: { padding: "6px 10px 8px" } },
     h("label", { class: "check", for: "wl-startup" }, startup, " Show this window when PixelOS starts"),
@@ -130,8 +148,8 @@ export function open(arg, from) {
       h("button", { type: "button", class: "btn", onclick: () => launch("mail", null) }, "Say hello"),
       h("button", { type: "button", class: "btn def", onclick: () => w.close() }, "Close"))));
 
-  const oc = orbit.getContext("2d"), dc = doc.getContext("2d");
-  if (reduce) { l1.textContent = LINES[0]; l2.textContent = LINES[1]; drawOrbit(oc, 0); drawRohan(dc, 1, false, 0); }
+  const dc = doc.getContext("2d");
+  if (reduce) { l1.textContent = LINES[0]; l2.textContent = LINES[1]; drawRohan(dc, 1, false, 0); }
   else {
     let li = 0, ci = 0;
     const type = () => {
@@ -142,7 +160,7 @@ export function open(arg, from) {
       if (li === 0) { li = 1; ci = 0; timers.push(setTimeout(type, 380)); }
     };
     timers.push(setTimeout(type, 500));
-    w.on(onTick((t) => { if (w.min) return; if (waveUntil === 1e9) waveUntil = t + 2.6; clock = t; drawOrbit(oc, t); drawRohan(dc, t, t < talkUntil, waveUntil); }));
+    w.on(onTick((t) => { if (w.min) return; if (waveUntil === 1e9) waveUntil = t + 2.6; clock = t; drawRohan(dc, t, t < talkUntil, waveUntil); }));
   }
   timers.push(setTimeout(() => tip(), 3200));
   return w;

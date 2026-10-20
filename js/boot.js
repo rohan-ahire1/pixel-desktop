@@ -259,6 +259,7 @@ function initIdle() {
   for (const ev of ["pointermove", "pointerdown", "keydown", "wheel", "touchstart"]) addEventListener(ev, () => (idleAt = performance.now()), { capture: true, passive: true });
   setInterval(() => {
     if (settings.saver === "none" || reduce || document.hidden || saverEl || $(".overlay")) return;
+    if (winList().some((w) => w.id === "welcome" && !w.min)) return; // never hide the intro while someone may be reading it
     if (document.fullscreenElement && document.fullscreenElement.tagName === "VIDEO") return;
     if (performance.now() - idleAt > (settings.saverWait || 3) * 60000) runSaver(settings.saver, false);
   }, 4000);
@@ -324,7 +325,8 @@ async function fadeOut(ov) {
 
 // Shows the BIOS and splash on the first visit of a session. Resolves when the desktop should appear.
 export async function boot() {
-  if (session.get("booted") || reduce || new URLSearchParams(location.search).has("nosplash")) { session.set("booted", "1"); return; }
+  // straight to the desktop: first impressions are the welcome window, not a BIOS screen (?boot shows it)
+  if (session.get("booted") || reduce || !new URLSearchParams(location.search).has("boot")) { session.set("booted", "1"); return; }
   session.set("booted", "1");
   const ov = overlay(), sk = skippable(ov);
   await bios(ov, sk);

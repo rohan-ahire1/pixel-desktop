@@ -9,7 +9,7 @@ const kb = (...keys) => keys.map((k, i) => [i ? " + " : "", h("span", { class: "
 const TOPICS = [
   { id: "start", title: "Getting started", icon: "logo", body: () => [
     h("p", {}, "This is my portfolio, built as a small desktop computer. Everything you see works like you'd expect: icons, windows, menus, the taskbar."),
-    h("ul", {}, h("li", {}, "Double-click an icon to open it. On a phone, tap once."), h("li", {}, "The Projects folder has the six things I built. Each opens a page about it."), h("li", {}, "Right-click almost anything for more options."), h("li", {}, "The Start button, bottom left, has every program.")),
+    h("ul", {}, h("li", {}, "Double-click an icon to open it. On a phone, tap once."), h("li", {}, "The Projects folder has the things I built. Each opens a page about it."), h("li", {}, "Right-click almost anything for more options."), h("li", {}, "The Start button, bottom left, has every program.")),
     a("Open Projects", () => openNode("projects")), a("Read About me.txt", () => openNode("readme")),
   ] },
   { id: "windows", title: "Windows", icon: "display", body: () => [
