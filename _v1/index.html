@@ -1,0 +1,1296 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rohan Ahire</title>
+<meta name="description" content="Rohan Ahire builds trading systems, games, and AI tools, end to end.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Pixelify+Sans:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0e1236;
+    --chrome: #d9dbe6;
+    --chrome-d: #9a9fbb;
+    --title: #0b2fa8;
+    --accent: #1238c4;
+    --paper: #f3f4f9;
+    --ink: #10132e;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: "Pixelify Sans", ui-monospace, monospace;
+    color: var(--ink);
+    background: #6d8cf0;
+    padding-bottom: 72px;
+    overflow-x: hidden;
+  }
+  body.night { background: #0b1140; }
+  #bg { position: fixed; inset: 0; width: 100vw; height: 100vh; image-rendering: pixelated; z-index: -1; display: block; }
+  canvas.px { image-rendering: pixelated; display: block; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px dashed var(--navy); outline-offset: 3px; }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .bevel { background: var(--chrome); border: 2px solid var(--navy); box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 var(--chrome-d); }
+  .pressed { box-shadow: inset 2px 2px 0 var(--chrome-d), inset -2px -2px 0 #fff; background: #c9ccdb; }
+  .btn { cursor: pointer; padding: 8px 16px; font-size: 17px; text-decoration: none; display: inline-flex; align-items: center; gap: 10px; color: var(--ink); }
+  .btn:active { box-shadow: inset 2px 2px 0 var(--chrome-d), inset -2px -2px 0 #fff; }
+  .btn.blue { background: var(--accent); color: #fff; box-shadow: inset 2px 2px 0 #6f8cff, inset -2px -2px 0 #061a6e; }
+
+  /* Top bar */
+  .topbar { margin: 16px auto 0; width: min(1300px, calc(100% - 32px)); display: flex; align-items: center; gap: 16px; padding: 10px 22px; box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 var(--chrome-d), 4px 4px 0 rgba(14, 18, 54, .35); }
+  .topbar canvas { width: 30px; height: 36px; }
+  .brand { font-family: Silkscreen, monospace; font-weight: 700; font-size: clamp(17px, 2.3vw, 28px); letter-spacing: .12em; text-decoration: none; color: var(--ink); white-space: nowrap; }
+  .topnav { margin-left: auto; display: flex; gap: clamp(10px, 3vw, 40px); }
+  .topnav button { all: unset; cursor: pointer; font-family: Silkscreen, monospace; font-size: clamp(13px, 1.4vw, 18px); padding: 4px 2px; border-bottom: 2px solid transparent; }
+  .topnav button:hover { border-bottom-color: var(--ink); }
+  .topnav button:focus-visible { outline: 3px dashed var(--navy); }
+
+  /* Windows */
+  .win { padding: 4px; background: var(--chrome); border: 2px solid var(--navy); box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 var(--chrome-d), 8px 8px 0 rgba(14, 18, 54, .35); }
+  .main-win { width: min(1080px, calc(100% - 32px)); margin: 40px auto 0; position: relative; z-index: 5; }
+  .main-win[hidden] { display: none; }
+  .titlebar { display: flex; align-items: center; gap: 12px; background: var(--title); color: #fff; padding: 5px 5px 5px 10px; cursor: grab; user-select: none; touch-action: none; }
+  .titlebar:active { cursor: grabbing; }
+  .win.inactive .titlebar { background: #7b80a0; }
+  .titlebar canvas { width: 20px; height: 24px; }
+  .titlebar .ttl { font-size: clamp(16px, 1.6vw, 21px); letter-spacing: .02em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tb-btns { margin-left: auto; display: flex; gap: 4px; flex: none; }
+  .tb-btns button { width: 30px; height: 28px; padding: 0; display: grid; place-items: center; cursor: pointer; color: var(--ink); }
+  .tb-btns button:active { box-shadow: inset 2px 2px 0 var(--chrome-d), inset -2px -2px 0 #fff; }
+  .tb-btns svg { shape-rendering: crispEdges; }
+
+  .menubar { display: flex; gap: 2px; padding: 4px 6px; border-bottom: 2px solid var(--chrome-d); }
+  .menubar > div { position: relative; }
+  .mb { all: unset; cursor: pointer; padding: 4px 12px; font-size: 19px; }
+  .mb:hover, .mb[aria-expanded="true"] { background: var(--title); color: #fff; }
+  .mb:focus-visible { outline: 2px dashed var(--navy); }
+  .dropdown { position: absolute; top: 100%; left: 0; min-width: 230px; z-index: 60; padding: 4px; display: none; box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 var(--chrome-d), 4px 4px 0 rgba(14, 18, 54, .35); }
+  .dropdown.right { left: auto; right: 0; }
+  .dropdown.open { display: block; }
+  .dropdown button { all: unset; box-sizing: border-box; display: flex; justify-content: space-between; gap: 16px; width: 100%; padding: 8px 14px; cursor: pointer; font-size: 17px; }
+  .dropdown button:hover, .dropdown button:focus { background: var(--title); color: #fff; }
+  .dropdown hr { border: 0; border-top: 2px solid var(--chrome-d); border-bottom: 2px solid #fff; margin: 4px 2px; }
+
+  .win-body { background: var(--paper); margin-top: 4px; border: 2px solid var(--navy); box-shadow: inset 2px 2px 0 var(--chrome-d); }
+  .hero { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; padding: clamp(24px, 4.5vw, 60px) clamp(20px, 4vw, 52px) clamp(20px, 3vw, 34px); }
+  h1 { font-family: Silkscreen, monospace; font-weight: 700; font-size: clamp(2.1rem, 5.4vw, 4.6rem); line-height: 1.04; margin: 0 0 26px; letter-spacing: -.03em; min-height: 2.08em; }
+  .caret { display: inline-block; width: .07em; height: .86em; background: #8b90ad; vertical-align: -.04em; margin-left: .06em; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { opacity: 0; } }
+  .lead { font-family: "IBM Plex Mono", monospace; font-size: clamp(15px, 1.5vw, 19px); line-height: 1.55; max-width: 36ch; margin: 0 0 30px; }
+  .cta { all: unset; cursor: pointer; display: inline-flex; gap: 18px; align-items: center; background: var(--accent); color: #fff; font-family: Silkscreen, monospace; font-size: clamp(14px, 1.5vw, 20px); padding: 14px 26px; border: 2px solid var(--navy); box-shadow: inset 2px 2px 0 #6f8cff, inset -2px -2px 0 #061a6e, 0 0 0 4px var(--paper), 0 0 0 6px var(--navy); }
+  .cta svg { transition: transform .2s steps(2); }
+  .cta:hover svg { transform: translateX(6px); }
+  .cta:active { box-shadow: inset 2px 2px 0 #061a6e, inset -2px -2px 0 #6f8cff, 0 0 0 4px var(--paper), 0 0 0 6px var(--navy); }
+  .cta:focus-visible { outline: 3px dashed var(--navy); outline-offset: 10px; }
+
+  .art { display: grid; grid-template-columns: auto 1fr; align-items: end; column-gap: 8px; }
+  #orbit { grid-column: 1 / -1; width: 100%; max-width: 400px; justify-self: end; aspect-ratio: 180 / 110; height: auto; }
+  .mascot-wrap { position: relative; }
+  #mascot { width: 130px; height: 130px; cursor: pointer; }
+  .mascot-btn { all: unset; cursor: pointer; display: block; }
+  .mascot-btn:focus-visible { outline: 3px dashed var(--navy); }
+  .bubble { position: absolute; bottom: 118px; left: 40px; width: 230px; padding: 10px 12px; font-family: "IBM Plex Mono", monospace; font-size: 13px; line-height: 1.4; background: #fff; border: 2px solid var(--navy); box-shadow: 4px 4px 0 rgba(14, 18, 54, .3); z-index: 3; }
+  .bubble::after { content: ""; position: absolute; left: 22px; bottom: -10px; width: 12px; height: 10px; background: #fff; border: 2px solid var(--navy); border-top: 0; border-left: 0; clip-path: polygon(0 0, 100% 0, 0 100%); }
+  .bubble[hidden] { display: none; }
+  .focus-list { list-style: none; margin: 0 0 18px; padding: 0; font-family: "IBM Plex Mono", monospace; font-size: 13.5px; letter-spacing: .06em; line-height: 1.5; text-transform: uppercase; }
+  .focus-list::after { content: ""; display: block; width: 2px; height: 22px; background: #8b90ad; margin-top: 10px; }
+
+  /* Desktop icons */
+  .icons { width: min(1220px, calc(100% - 32px)); margin: 52px auto 40px; display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 30px 18px; position: relative; z-index: 4; }
+  .icon { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; color: var(--navy); }
+  .icon canvas { width: 96px; height: 96px; transition: transform .2s steps(2); }
+  .icon:hover canvas, .icon:focus-visible canvas { transform: translateY(-5px); }
+  .icon .lbl { font-family: Silkscreen, monospace; font-size: 17px; padding: 6px 18px; letter-spacing: .04em; }
+  .icon:focus-visible { outline: none; }
+  .icon:focus-visible .lbl, .icon.sel .lbl { background: var(--title); color: #fff; box-shadow: none; outline: 2px dashed #fff; outline-offset: -5px; }
+  .icon .kind { font-size: 18px; }
+  .icon .sum { font-family: "IBM Plex Mono", monospace; font-size: 14px; line-height: 1.45; max-width: 25ch; }
+  body.night .icon { color: #eef0ff; }
+  .icon.pulse canvas { animation: hop .5s steps(3) 2; }
+  @keyframes hop { 50% { transform: translateY(-10px); } }
+
+  /* Floating windows */
+  .fwin { position: fixed; left: 0; top: 0; width: min(580px, calc(100vw - 32px)); z-index: 20; }
+  .fwin.max, .main-win.max { position: fixed; left: 8px !important; top: 8px !important; right: 8px; bottom: 64px; width: auto; margin: 0; translate: none !important; overflow: auto; z-index: 90 !important; }
+  .fwin .win-body { padding: 22px; max-height: calc(100vh - 170px); overflow: auto; }
+  .proj-head { display: flex; gap: 18px; align-items: center; margin-bottom: 16px; }
+  .proj-head canvas { width: 96px; height: 96px; flex: none; }
+  .proj-head h2 { font-family: Silkscreen, monospace; font-size: 28px; margin: 0 0 4px; }
+  .proj-head p { margin: 0; font-size: 18px; }
+  .fwin p.body { font-family: "IBM Plex Mono", monospace; font-size: 15px; line-height: 1.6; margin: 0 0 16px; }
+  .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0 0 18px; padding: 12px 14px; font-family: "IBM Plex Mono", monospace; font-size: 14px; background: #fff; border: 2px solid var(--navy); box-shadow: inset 2px 2px 0 var(--chrome-d); }
+  .facts dt { color: #555a7a; }
+  .facts dd { margin: 0; font-weight: 600; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .now { margin: 0 0 16px; padding: 0; list-style: none; font-family: "IBM Plex Mono", monospace; font-size: 14px; }
+  .now li { padding: 6px 0 6px 18px; position: relative; border-bottom: 1px dashed var(--chrome-d); }
+  .now li::before { content: ""; position: absolute; left: 2px; top: 13px; width: 6px; height: 6px; background: var(--accent); }
+  .email-box { font-family: "IBM Plex Mono", monospace; font-size: 16px; padding: 10px 12px; background: #fff; border: 2px solid var(--navy); box-shadow: inset 2px 2px 0 var(--chrome-d); margin: 0 0 16px; word-break: break-all; }
+
+  /* Taskbar */
+  .taskbar { position: fixed; left: 0; right: 0; bottom: 0; height: 56px; display: flex; align-items: center; gap: 10px; padding: 6px 8px; z-index: 100; border-width: 2px 0 0; }
+  .start { display: flex; gap: 10px; align-items: center; padding: 4px 14px; height: 40px; font-size: 20px; cursor: pointer; flex: none; }
+  .start canvas { width: 20px; height: 24px; }
+  .start[aria-expanded="true"] { box-shadow: inset 2px 2px 0 var(--chrome-d), inset -2px -2px 0 #fff; background: #c9ccdb; }
+  .crumbs { display: flex; gap: 10px; align-items: center; font-family: "IBM Plex Mono", monospace; font-size: 14px; padding-left: 14px; border-left: 2px solid var(--chrome-d); white-space: nowrap; flex: none; }
+  .crumbs canvas { width: 20px; height: 24px; }
+  .crumbs i { font-style: normal; color: #5b6080; }
+  .tasks { display: flex; gap: 6px; flex: 1; min-width: 0; overflow: hidden; }
+  .task { cursor: pointer; padding: 4px 12px; height: 40px; font-size: 15px; max-width: 200px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .task.active { box-shadow: inset 2px 2px 0 var(--chrome-d), inset -2px -2px 0 #fff; background: #c5c8d8; }
+  .clock { padding: 9px 14px; font-family: "IBM Plex Mono", monospace; font-size: 15px; flex: none; border: 2px solid var(--chrome-d); box-shadow: inset 2px 2px 0 var(--chrome-d), inset -2px -2px 0 #fff; border-color: transparent; }
+
+  .startmenu { position: fixed; left: 8px; bottom: 58px; width: 290px; display: flex; z-index: 110; padding: 4px; box-shadow: inset 2px 2px 0 #fff, inset -2px -2px 0 var(--chrome-d), 4px 4px 0 rgba(14, 18, 54, .35); }
+  .startmenu[hidden] { display: none; }
+  .startmenu .band { width: 34px; background: var(--title); color: #fff; font-family: Silkscreen, monospace; font-size: 17px; writing-mode: vertical-rl; transform: rotate(180deg); padding: 10px 6px; letter-spacing: .1em; }
+  .startmenu ul { list-style: none; margin: 0; padding: 2px; flex: 1; }
+  .startmenu button { all: unset; box-sizing: border-box; display: block; width: 100%; padding: 8px 12px; font-size: 17px; cursor: pointer; }
+  .startmenu button:hover, .startmenu button:focus { background: var(--title); color: #fff; }
+  .startmenu .group { font-size: 13px; color: #5b6080; padding: 8px 12px 2px; font-family: "IBM Plex Mono", monospace; text-transform: uppercase; letter-spacing: .1em; }
+  .startmenu hr { border: 0; border-top: 2px solid var(--chrome-d); border-bottom: 2px solid #fff; margin: 4px 2px; }
+
+  .toast { position: fixed; left: 50%; bottom: 72px; transform: translateX(-50%); padding: 10px 16px; font-size: 17px; z-index: 120; }
+  .toast[hidden] { display: none; }
+
+  .shutdown { position: fixed; inset: 0; background: #000; color: #f5a623; z-index: 200; display: grid; place-items: center; text-align: center; font-family: Silkscreen, monospace; padding: 24px; }
+  .shutdown[hidden] { display: none; }
+  .shutdown p { font-size: clamp(20px, 3vw, 34px); margin: 0 0 30px; }
+
+  /* Pixel the cat, lives on top of the taskbar */
+  body { padding-bottom: 140px; }
+  .pet { position: fixed; left: 0; right: 0; bottom: 56px; height: 136px; z-index: 95; pointer-events: none; }
+  .pet-clip { position: absolute; inset: 0; overflow: hidden; }
+  .pet canvas { position: absolute; left: 0; top: 0; }
+  .pet-hit { all: unset; position: absolute; left: 0; top: 0; pointer-events: auto; cursor: pointer; }
+  .pet-hit:focus-visible { outline: 3px dashed var(--navy); }
+  body.night .pet-hit:focus-visible { outline-color: #fff; }
+  .cat-say { position: absolute; padding: 4px 10px; font-size: 16px; background: #fff; border: 2px solid var(--navy); box-shadow: 3px 3px 0 rgba(14, 18, 54, .3); white-space: nowrap; }
+  .cat-say[hidden] { display: none; }
+
+  @media (max-width: 1150px) { .crumbs { display: none; } }
+  @media (max-width: 760px) {
+    body { padding-bottom: 128px; }
+    .topbar { margin-top: 10px; width: calc(100% - 20px); padding: 8px 12px; gap: 10px; }
+    .topbar canvas { display: none; }
+    .main-win { width: calc(100% - 20px); margin-top: 18px; }
+    .mb { font-size: 16px; padding: 4px 8px; }
+    .hero { grid-template-columns: 1fr; }
+    .art { grid-template-columns: auto 1fr; }
+    #orbit { max-width: none; }
+    #mascot { width: 104px; height: 104px; }
+    .bubble { left: 10px; bottom: 96px; width: min(240px, 70vw); }
+    .icons { grid-template-columns: repeat(2, minmax(0, 1fr)); width: calc(100% - 20px); gap: 26px 10px; }
+    .icon .sum { font-size: 13px; }
+    .fwin { left: 8px !important; top: 8px !important; right: 8px; bottom: 64px; width: auto; translate: none !important; display: flex; flex-direction: column; }
+    .fwin .win-body { max-height: none; flex: 1; }
+    .tb-btns [data-act="max"] { display: none; }
+    .task { max-width: 120px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    html { scroll-behavior: auto; }
+  }
+</style>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+
+<header class="topbar bevel">
+  <canvas class="px logo" width="10" height="12" aria-hidden="true"></canvas>
+  <a class="brand" href="#">ROHAN AHIRE</a>
+  <nav class="topnav" aria-label="Main">
+    <button type="button" data-go="work">Work</button>
+    <button type="button" data-go="about">About</button>
+    <button type="button" data-go="contact">Contact</button>
+  </nav>
+</header>
+
+<main>
+  <section class="win main-win" id="win-welcome" aria-labelledby="t-welcome">
+    <div class="titlebar">
+      <canvas class="px logo" width="10" height="12" aria-hidden="true"></canvas>
+      <span class="ttl" id="t-welcome">rohanahire.com</span>
+      <div class="tb-btns">
+        <button type="button" class="bevel" data-act="min" aria-label="Minimize window"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="1" y="9" width="8" height="2" fill="currentColor"/></svg></button>
+        <button type="button" class="bevel" data-act="max" aria-label="Maximize window"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><rect x="1" y="1" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2"/><rect x="1" y="1" width="10" height="3" fill="currentColor"/></svg></button>
+        <button type="button" class="bevel" data-act="close" aria-label="Close window"><svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><path d="M1 1h2v2h2v2h2V3h2V1h2v2H9v2H7v2h2v2h2v2H9V9H7V7H5v2H3v2H1V9h2V7h2V5H3V3H1z" fill="currentColor"/></svg></button>
+      </div>
+    </div>
+    <div class="menubar" role="menubar" aria-label="Window menu">
+      <div>
+        <button type="button" class="mb" role="menuitem" aria-haspopup="true" aria-expanded="false">File</button>
+        <div class="dropdown bevel" role="menu">
+          <button type="button" role="menuitem" data-cmd="work">Open a project…</button>
+          <button type="button" role="menuitem" data-cmd="contact">New message to Rohan</button>
+          <hr>
+          <button type="button" role="menuitem" data-cmd="close-welcome">Close window</button>
+        </div>
+      </div>
+      <div>
+        <button type="button" class="mb" role="menuitem" aria-haspopup="true" aria-expanded="false">Edit</button>
+        <div class="dropdown bevel" role="menu">
+          <button type="button" role="menuitem" data-cmd="copy-email">Copy email address</button>
+        </div>
+      </div>
+      <div>
+        <button type="button" class="mb" role="menuitem" aria-haspopup="true" aria-expanded="false">View</button>
+        <div class="dropdown bevel" role="menu">
+          <button type="button" role="menuitem" data-cmd="night"><span>Night mode</span><span class="check" aria-hidden="true"></span></button>
+          <button type="button" role="menuitem" data-cmd="max-welcome">Maximize window</button>
+        </div>
+      </div>
+      <div>
+        <button type="button" class="mb" role="menuitem" aria-haspopup="true" aria-expanded="false">Build</button>
+        <div class="dropdown bevel right-sm" role="menu" id="build-menu"></div>
+      </div>
+      <div>
+        <button type="button" class="mb" role="menuitem" aria-haspopup="true" aria-expanded="false">Help</button>
+        <div class="dropdown bevel right" role="menu">
+          <button type="button" role="menuitem" data-cmd="about">About Rohan</button>
+          <button type="button" role="menuitem" data-cmd="contact">Contact</button>
+          <button type="button" role="menuitem" data-cmd="tip">Ask Doc for a tip</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="win-body hero">
+      <div>
+        <h1 aria-label="Hello, world. Let's build."><span aria-hidden="true"><span id="l1"></span><br><span id="l2"></span><span class="caret"></span></span></h1>
+        <p class="lead">I build trading systems, games, and AI tools. End to end, solo.</p>
+        <button type="button" class="cta" data-go="work">Explore the work
+          <svg width="26" height="16" viewBox="0 0 26 16" aria-hidden="true" shape-rendering="crispEdges"><path d="M0 7h20v2H0zM14 1h2v2h2v2h2v2h2v2h-2v2h-2v2h-2v2h-2v-2h2v-2h2V9h2V7h-2V5h-2V3h-2z" fill="currentColor"/></svg>
+        </button>
+      </div>
+      <div class="art">
+        <canvas id="orbit" class="px" width="180" height="110" aria-hidden="true"></canvas>
+        <div class="mascot-wrap">
+          <div class="bubble" id="bubble" role="status" hidden></div>
+          <button type="button" class="mascot-btn" id="mascot-btn" aria-label="Doc, the site helper. Click for a tip.">
+            <canvas id="mascot" class="px" width="26" height="26" aria-hidden="true"></canvas>
+          </button>
+        </div>
+        <ul class="focus-list" aria-label="What I work on">
+          <li>Ideas</li><li>Code</li><li>Systems</li><li>Games</li><li>Tools</li><li>A brighter tomorrow</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="icons" id="work" aria-label="Projects"></section>
+</main>
+
+<div id="layer"></div>
+
+<div class="startmenu bevel" id="startmenu" role="menu" aria-label="Start menu" hidden>
+  <div class="band" aria-hidden="true">ROHAN AHIRE</div>
+  <ul>
+    <li class="group">Projects</li>
+    <li id="start-projects" style="list-style:none"></li>
+    <li><hr></li>
+    <li><button type="button" role="menuitem" data-cmd="welcome">Welcome window</button></li>
+    <li><button type="button" role="menuitem" data-cmd="about">About</button></li>
+    <li><button type="button" role="menuitem" data-cmd="contact">Contact</button></li>
+    <li><button type="button" role="menuitem" data-cmd="night">Night mode</button></li>
+    <li><hr></li>
+    <li class="group">Pixel the cat</li>
+    <li><button type="button" role="menuitem" data-cmd="cat-ball">Roll the ball</button></li>
+    <li><button type="button" role="menuitem" data-cmd="cat-nap" id="cat-nap">Tell Pixel to nap</button></li>
+    <li><hr></li>
+    <li><button type="button" role="menuitem" data-cmd="shutdown">Shut down…</button></li>
+  </ul>
+</div>
+
+<div class="pet" id="pet">
+  <div class="pet-clip"><canvas id="pet-cv" class="px" aria-hidden="true"></canvas></div>
+  <div class="cat-say" id="cat-say" aria-hidden="true" hidden></div>
+  <button type="button" class="pet-hit" id="ball-hit" aria-label="Yarn ball. Click to roll it."></button>
+  <button type="button" class="pet-hit" id="cat-hit" aria-label="Pixel the cat. Click to say hi."></button>
+  <p class="sr" id="cat-status" role="status"></p>
+</div>
+
+<footer class="taskbar bevel">
+  <button type="button" class="start bevel" id="start" aria-haspopup="true" aria-expanded="false" aria-controls="startmenu">
+    <canvas class="px logo" width="10" height="12" aria-hidden="true"></canvas>Start
+  </button>
+  <div class="crumbs" aria-hidden="true">
+    <canvas class="px logo" width="10" height="12"></canvas>
+    <span>Ideas</span><i>›</i><span>Code</span><i>›</i><span>Games</span><i>›</i><span>Trading</span><i>›</i><span>AI</span><i>›</i><span>A Brighter Tomorrow</span>
+  </div>
+  <div class="tasks" id="tasks" aria-label="Open windows"></div>
+  <div class="clock" id="clock"></div>
+</footer>
+
+<div class="toast bevel" id="toast" role="status" hidden></div>
+
+<div class="shutdown" id="shutdown" hidden>
+  <div>
+    <p>It's now safe to close this tab.</p>
+    <button type="button" class="btn bevel" id="restart">Restart</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const small = () => matchMedia("(max-width: 760px)").matches;
+  const EMAIL = "rohanahire1607@gmail.com";
+  const K = "#10132e";
+  let night = false;
+  try { night = localStorage.getItem("pixel-night") === "1"; } catch (e) {}
+
+  /* ---------- pixel helpers ---------- */
+  const px = (ctx, x, y, c, w = 1, h = 1) => { ctx.fillStyle = c; ctx.fillRect(x, y, w, h); };
+  const PAL = { K, W: "#eef0f8", G: "#b9bfd8", B: "#8fa0de", L: "#2a4fd1" };
+  const drawMap = (ctx, rows, ox, oy, pal = PAL) => rows.forEach((row, y) => {
+    for (let x = 0; x < row.length; x++) if (row[x] !== ".") px(ctx, ox + x, oy + y, pal[row[x]]);
+  });
+  const shadow = (ctx, cx, cy, rx, ry = 1.6) => {
+    for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) {
+      const dx = (x - cx) / rx, dy = (y - cy) / ry;
+      if (dx * dx + dy * dy < 1 && (x + y) % 2 === 0) px(ctx, x, y, "rgba(16,19,46,.35)");
+    }
+  };
+
+  /* ---------- small page logo ---------- */
+  const LOGO = [
+    "KKKKKKK...", "KWWWWWKK..", "KWWWWWKWK.", "KWWWWWKKKK", "KWWWWWWWWK", "KWWKWWKWWK",
+    "KWWWWWWWWK", "KWKWWWWKWK", "KWWKKKKWWK", "KWWWWWWWWK", "KWWWWWWWWK", "KKKKKKKKKK",
+  ];
+  $$("canvas.logo").forEach((c) => drawMap(c.getContext("2d"), LOGO, 0, 0));
+
+  /* ---------- mascot ---------- */
+  const BODY = [
+    "....................", "....KKKKKKKKK.......", "....KWWWWWWWKK......", "....KWBBBBWWKGK.....",
+    "....KWWWWWWWKGGK....", "....KWBBBWWWKKKKK...", "....KWWWWWWWWWWWK...", "....KWWWKWWWKWWWK...",
+    "....KWWWKWWWKWWWK...", "....KWWWWWWWWWWWK...", "....KWWWKWWWKWWWK...", "....KWWWWKKKWWWWK...",
+    "....KWWWWWWWWWWWK...", "....KWWKWWWKWKWWK...", "....KWKWWWKWWWKWK...", "....KWWKWKWWWKWWK...",
+    "....KWWWWWWWWWWWK...", "....KKKKKKKKKKKKK...", "......KK....KK......", "......KK....KK......",
+    ".....KKK...KKK......", "....................",
+  ];
+  const BLINK_ROW = "....KWWWWWWWWWWWK...";
+  const mctx = $("#mascot").getContext("2d");
+  function drawMascot(t) {
+    mctx.clearRect(0, 0, 26, 26);
+    shadow(mctx, 13, 23.4, 10);
+    const wave = Math.floor(t * 3) % 2 === 1;
+    const blink = t % 4 < 0.18;
+    const rows = BODY.slice();
+    if (blink) rows[7] = BLINK_ROW;
+    drawMap(mctx, rows, 3, 1);
+    // left arm, hand raised
+    [[6, 12], [5, 11], [4, 10], [3, 9]].forEach(([x, y]) => px(mctx, x, y, K));
+    px(mctx, 2, 7, K, 2, 2);
+    // right arm waves
+    if (wave) { [[20, 11], [21, 10], [22, 9]].forEach(([x, y]) => px(mctx, x, y, K)); px(mctx, 22, 7, K, 2, 2); }
+    else { [[20, 12], [21, 13], [22, 14]].forEach(([x, y]) => px(mctx, x, y, K)); px(mctx, 22, 15, K, 2, 2); }
+  }
+
+  /* ---------- orbit ---------- */
+  const octx = $("#orbit").getContext("2d");
+  function disc(ctx, cx, cy, r, [base, hi, sh]) {
+    for (let y = -r; y <= r; y++) for (let x = -r; x <= r; x++) {
+      const d = Math.hypot(x, y);
+      if (d > r + 0.3) continue;
+      const l = (-x - y) / (r * 1.4);
+      let c = l > 0.35 ? hi : l < -0.4 ? sh : base;
+      if (d > r - 0.8) c = K;
+      px(ctx, Math.round(cx + x), Math.round(cy + y), c);
+    }
+  }
+  const ORBITS = [{ rx: 26, ry: 10 }, { rx: 44, ry: 17 }, { rx: 64, ry: 25 }, { rx: 84, ry: 33 }];
+  const PLANETS = [
+    { o: 1, r: 4, sp: 0.9, a: 3.6, c: ["#3d7bea", "#9cc0ff", "#1f4bb0"] },
+    { o: 2, r: 4, sp: 0.6, a: 5.3, c: ["#3fae6a", "#9be3b0", "#1f7042"] },
+    { o: 2, r: 5, sp: 0.6, a: 1.2, c: ["#d9534f", "#ff9b8f", "#922b2b"] },
+    { o: 3, r: 5, sp: 0.4, a: 3.0, c: ["#9a9caa", "#d6d8e2", "#62647a"] },
+  ];
+  function drawOrbit(t) {
+    octx.clearRect(0, 0, 180, 110);
+    const cx = 92, cy = 56, tilt = -0.17;
+    const rot = (x, y) => [cx + x * Math.cos(tilt) - y * Math.sin(tilt), cy + x * Math.sin(tilt) + y * Math.cos(tilt)];
+    ORBITS.forEach((o) => {
+      const n = Math.round(o.rx * 1.7);
+      for (let k = 0; k < n; k += 2) {
+        const a = (k / n) * Math.PI * 2;
+        const [x, y] = rot(o.rx * Math.cos(a), o.ry * Math.sin(a));
+        px(octx, Math.round(x), Math.round(y), K);
+      }
+    });
+    const pos = PLANETS.map((p) => {
+      const a = p.a + t * p.sp * 0.5, o = ORBITS[p.o];
+      const [x, y] = rot(o.rx * Math.cos(a), o.ry * Math.sin(a));
+      return { p, x, y, back: Math.sin(a) < 0 };
+    });
+    pos.filter((q) => q.back).forEach((q) => disc(octx, q.x, q.y, q.p.r, q.p.c));
+    disc(octx, cx, cy, 10, ["#f7c437", "#ffe58a", "#de9418"]);
+    pos.filter((q) => !q.back).forEach((q) => disc(octx, q.x, q.y, q.p.r, q.p.c));
+    const da = 2 + t * 0.25, [dx, dy] = rot(84 * Math.cos(da), 33 * Math.sin(da));
+    [[0, -1], [-1, 0], [0, 0], [1, 0], [0, 1]].forEach(([x, y]) => px(octx, Math.round(dx) + x, Math.round(dy) + y, K));
+    [[20, 14], [150, 8], [168, 72], [136, 100], [40, 92]].forEach(([x, y], i) => {
+      if ((Math.floor(t * 2) + i) % 3 === 0) return;
+      px(octx, x - 2, y, K, 5, 1); px(octx, x, y - 2, K, 1, 5);
+    });
+  }
+
+  /* ---------- project icons ---------- */
+  function shortcut(ctx) {
+    px(ctx, 0, 22, K, 10, 10); px(ctx, 1, 23, "#fff", 8, 8);
+    const A = "#1d34a8";
+    [[2, 29], [3, 28], [4, 27], [5, 26], [6, 25]].forEach(([x, y]) => px(ctx, x, y, A, 1, 1));
+    px(ctx, 4, 24, A, 4, 1); px(ctx, 7, 24, A, 1, 4);
+  }
+  const SEA = ["#1d3fa8", "#2a62d6", "#5a92f2"], LAND = ["#2c6e30", "#46a64c", "#86d870"];
+  function globe(ctx, t) {
+    const r = 12.5, cx = 16, cy = 14.5, rot = t * 0.7;
+    shadow(ctx, 16, 29.5, 10);
+    for (let y = 0; y < 32; y++) for (let x = 0; x < 32; x++) {
+      const nx = (x + 0.5 - cx) / r, ny = (y + 0.5 - cy) / r, d2 = nx * nx + ny * ny;
+      if (d2 > 1) continue;
+      const nz = Math.sqrt(1 - d2);
+      const lon = Math.atan2(nx, nz) + rot, lat = Math.asin(ny);
+      const land = Math.sin(lon * 2 + 1) * Math.cos(lat * 2.5) + 0.55 * Math.sin(lon * 5 + lat * 3 + 2) + 0.35 * Math.cos(lon * 3 - lat * 7) > 0.5;
+      const light = -0.5 * nx - 0.6 * ny + 0.62 * nz;
+      const lvl = light > 0.55 ? 2 : light > 0.12 ? 1 : 0;
+      let c = land ? LAND[lvl] : SEA[lvl];
+      if (!land && Math.abs(Math.sin(lon * 4)) < 0.12) c = SEA[Math.min(2, lvl + 1)];
+      if (Math.sqrt(d2) * r > r - 1) c = K;
+      px(ctx, x, y, c);
+    }
+  }
+  const ROOK = [
+    "KKK..KKKK..KKK", "KWK..KWWK..KWK", "KWKKKKWWKKKKWK", "KWWWWWWWWWWWWK", "KKWWWWWWWWWWKK", ".KKKKKKKKKKKK.",
+    "..KWWWWWWWWK..", "..KWWWWWWGWK..", "..KWWWWWWGWK..", "..KWWWWWWGWK..", "..KWWWWWWGWK..", "..KWWWWWWGWK..",
+    ".KKKKKKKKKKKK.", ".KWWWWWWWWGWK.", "KKKKKKKKKKKKKK", "KWWWWWWWWWWGWK", "KWWWWWWWWWWGWK", "KKKKKKKKKKKKKK",
+  ];
+  function chess(ctx, t) {
+    shadow(ctx, 16, 30, 12);
+    px(ctx, 2, 2, K, 28, 27);
+    for (let y = 0; y < 6; y++) for (let x = 0; x < 6; x++) px(ctx, 4 + x * 4, 4 + y * 4, (x + y) % 2 ? "#585e86" : "#2b2f4a", 4, 4);
+    const bob = Math.floor(t * 1.5) % 2;
+    drawMap(ctx, ROOK, 9, 7 - bob);
+  }
+  function chart(ctx, t) {
+    shadow(ctx, 16, 30, 12);
+    px(ctx, 2, 3, K, 28, 25); px(ctx, 3, 4, "#121733", 26, 23);
+    for (let x = 6; x < 29; x += 5) px(ctx, x, 4, "#27306a", 1, 23);
+    for (let y = 8; y < 27; y += 5) px(ctx, 3, y, "#27306a", 26, 1);
+    const base = [22, 21, 22, 19, 20, 17, 18, 14];
+    base.forEach((b, i) => {
+      const up = i % 3 !== 1;
+      let h = 3 + (i % 2);
+      if (i === base.length - 1) h += Math.floor((Math.sin(t * 3) + 1) * 1.5);
+      const x = 5 + i * 3;
+      px(ctx, x + 1, b - h - 1, up ? "#3fd16b" : "#ef4d5a", 1, h + 3);
+      px(ctx, x, b - h, up ? "#3fd16b" : "#ef4d5a", 3, h);
+    });
+    const G = "#3fd16b";
+    [[20, 13], [21, 12], [22, 11], [23, 10], [24, 9], [25, 8]].forEach(([x, y]) => px(ctx, x, y, G, 2, 1));
+    px(ctx, 23, 6, G, 4, 1); px(ctx, 26, 6, G, 1, 4);
+  }
+  function doc(ctx, t) {
+    shadow(ctx, 15, 30, 10);
+    px(ctx, 5, 3, K, 15, 1); px(ctx, 5, 3, K, 1, 26); px(ctx, 5, 28, K, 20, 1); px(ctx, 24, 9, K, 1, 20);
+    px(ctx, 6, 4, "#fff", 13, 24); px(ctx, 19, 9, "#fff", 5, 19);
+    for (let i = 0; i < 6; i++) px(ctx, 19 + i, 3 + i, K);
+    px(ctx, 19, 4, "#c9cde0", 1, 5); px(ctx, 19, 9, K, 6, 1);
+    [[10, 16], [13, 12], [16, 15], [19, 10], [22, 14], [25, 11]].forEach(([y, w]) => px(ctx, 8, y, "#4f74e6", w, 2));
+    const big = Math.floor(t * 2.5) % 2 === 0, Y = "#ffd84a";
+    if (big) { px(ctx, 24, 4, Y, 7, 1); px(ctx, 27, 1, Y, 1, 7); px(ctx, 27, 4, "#fff"); }
+    else { px(ctx, 25, 4, Y, 5, 1); px(ctx, 27, 2, Y, 1, 5); }
+  }
+  function bin(ctx, t) {
+    shadow(ctx, 16, 30, 11);
+    const drop = Math.floor(t * 2) % 4;
+    px(ctx, 9, 2 + drop, K, 9, 9); px(ctx, 10, 3 + drop, "#7fb2ff", 7, 4); px(ctx, 10, 7 + drop, "#46a64c", 7, 3);
+    px(ctx, 17, 4, K, 8, 8); px(ctx, 18, 5, "#ffb347", 6, 6);
+    px(ctx, 5, 11, K, 22, 4); px(ctx, 6, 12, "#c9cde0", 20, 2); px(ctx, 12, 9, K, 8, 2);
+    for (let y = 15; y < 29; y++) { const inset = Math.floor((y - 15) / 5); px(ctx, 7 + inset, y, K, 18 - inset * 2, 1); px(ctx, 8 + inset, y, "#d9dbe6", 16 - inset * 2, 1); }
+    px(ctx, 9, 28, K, 14, 1);
+    [12, 16, 20].forEach((x) => px(ctx, x, 17, "#8b90ad", 1, 9));
+  }
+  function momentum(ctx, t) {
+    shadow(ctx, 16, 30, 12);
+    px(ctx, 3, 4, K, 26, 24); px(ctx, 4, 5, "#fff", 24, 22);
+    const grow = reduce ? 1 : Math.min(1, (t % 4) / 1.2);
+    [4, 7, 10, 14, 18].forEach((h, i) => { const hh = Math.max(1, Math.round(h * grow)); px(ctx, 7 + i * 4, 26 - hh, i === 4 ? "#d9534f" : "#1d34a8", 3, hh); });
+    const G = "#3fd16b";
+    [[7, 15], [9, 14], [11, 13], [13, 12], [15, 11], [17, 10], [19, 9], [21, 8]].forEach(([x, y]) => px(ctx, x, y, G, 2, 1));
+    px(ctx, 20, 6, G, 4, 1); px(ctx, 23, 6, G, 1, 4);
+  }
+
+  /* ---------- content ---------- */
+  const projects = [
+    { id: "flaggo", name: "Flaggo", kind: "Geography game", sum: "Learn every country, one round at a time.", draw: globe,
+      year: "2025–26", status: "Active", stack: "Vite, React, TypeScript, Supabase", live: "https://flaggo.rohanahire.com",
+      blurb: "A geography game with flag, capital, map, arcade and daily-challenge modes. Spaced repetition picks what you see next, so the countries you miss keep coming back until they stick. Works offline." },
+    { id: "coachmate", name: "Coachmate", kind: "Chess coach", sum: "Finds the mistakes you keep making.", draw: chess,
+      year: "2026", status: "Shipped", stack: "Next.js, Stockfish, chess.js, OpenRouter",
+      blurb: "Type a Chess.com username and get a plain-English report on the mistakes you repeat. Then drill those exact positions, or play a bot tuned to your level. Stockfish runs in the browser, so your games stay on your device." },
+    { id: "multibagger", name: "Multibagger", kind: "Trading scanner", sum: "A daily scan of every NSE stock.", draw: chart,
+      year: "2026", status: "Active", stack: "Python, Polars, DuckDB, FastAPI, React",
+      blurb: "A daily scanner that checks every NSE stock for one setup: the Minervini-style swing entry. It pulls prices each evening, runs the signals in Polars, and pings Telegram only when something is worth a look." },
+    { id: "extracta", name: "Extracta", kind: "Document AI", sum: "Documents in, structured data out.", draw: doc,
+      year: "2025", status: "Demo", stack: "Next.js, Framer Motion, Three.js",
+      blurb: "A demo of what document extraction should feel like: drop in an invoice or a resume and watch it turn into editable fields with confidence scores. The AI part is mocked on purpose. This one is about the product experience." },
+    { id: "wacleaner", name: "WA Cleaner", kind: "Android app", sum: "Finds duplicate media and deletes it safely.", draw: bin,
+      year: "2025", status: "Built", stack: "Expo, React Native, Room, Kotlin module",
+      blurb: "An Android app that finds duplicate photos and forgotten large files, then deletes them safely, with trash and undo. It uses Android's own storage framework, so it only touches the folders you pick." },
+    { id: "clenow", name: "Clenow NSE", kind: "Momentum strategy", sum: "Momentum rules, tested on Indian stocks.", draw: momentum,
+      year: "2025–26", status: "Research", stack: "Python, yfinance, Dhan API, Pandas",
+      blurb: "Andreas Clenow's momentum rules, adapted for Indian stocks: rank the Nifty universe by trend strength, size positions by volatility, rebalance monthly. Backtested over ten years and now producing live signals through a broker API." },
+  ];
+
+  const live = []; // [ctx, drawFn, withShortcut]
+  const iconWrap = $("#work");
+  projects.forEach((p) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "icon"; b.dataset.open = p.id;
+    b.innerHTML = `<canvas class="px" width="32" height="32" aria-hidden="true"></canvas>
+      <span class="lbl bevel">${p.name.toUpperCase()}</span><span class="kind">${p.kind}</span><span class="sum">${p.sum}</span>`;
+    iconWrap.appendChild(b);
+    live.push([b.querySelector("canvas").getContext("2d"), p.draw, true]);
+  });
+  const menuItem = (p) => `<button type="button" role="menuitem" data-open="${p.id}">${p.name}</button>`;
+  $("#build-menu").innerHTML = projects.map(menuItem).join("");
+  $("#start-projects").innerHTML = projects.map(menuItem).join("");
+
+  /* ---------- background landscape ---------- */
+  const bg = $("#bg"), bctx = bg.getContext("2d");
+  const stat = document.createElement("canvas"), sctx = stat.getContext("2d");
+  let W = 320, H = 200, horizon = 120, clouds = [], stars = [], cloudSprites = [];
+  const rng = (seed) => () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const BAYER = [[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]].map((r) => r.map((v) => (v + 0.5) / 16));
+  const hex = (h) => { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; };
+  const ramp = (stops, n) => Array.from({ length: n }, (_, i) => {
+    const t = (i / (n - 1)) * (stops.length - 1), k = Math.min(Math.floor(t), stops.length - 2), f = t - k;
+    const a = hex(stops[k]), b = hex(stops[k + 1]);
+    return a.map((v, j) => Math.round(v + (b[j] - v) * f));
+  });
+  const THEMES = {
+    day: { sky: ["#4a68dc", "#7290f0", "#b9caff"], lake: ["#7f9cf2", "#4566d4", "#2a47b0"], far: "#8f98cc", farShade: "#727cb4", snow: "#eef2ff",
+      near: "#5f6aa3", nearShade: "#4c5690", tree: "#1f4f3b", treeHi: "#2f6f4c", shore: "#3c6a45", cloud: "#f5f7ff", cloudShade: "#c7d3fb", shimmer: "#e4ebff" },
+    night: { sky: ["#060a2a", "#141c5a", "#2d3585"], lake: ["#232c72", "#141a52", "#0a0f36"], far: "#343c7a", farShade: "#272e66", snow: "#9aa3d8",
+      near: "#20275e", nearShade: "#181e4e", tree: "#0d2422", treeHi: "#163a33", shore: "#122a2a", cloud: "#3a4290", cloudShade: "#2a3175", shimmer: "#8f9cf0" },
+  };
+
+  function makeCloud(w, h, seed, th) {
+    const c = document.createElement("canvas"); c.width = w; c.height = h;
+    const ctx = c.getContext("2d"), R = rng(seed), circles = [];
+    for (let i = 0; i < 5; i++) circles.push([w * (0.15 + 0.7 * i / 4), h * 0.62 - R() * h * 0.32, h * (0.28 + R() * 0.24)]);
+    for (let y = 0; y < h * 0.86; y++) for (let x = 0; x < w; x++) {
+      if (!circles.some(([cx, cy, r]) => (x - cx) ** 2 + (y - cy) ** 2 < r * r)) continue;
+      px(ctx, x, y, y > h * 0.6 ? th.cloudShade : th.cloud);
+    }
+    return c;
+  }
+
+  function renderStatic() {
+    const th = THEMES[night ? "night" : "day"];
+    W = 320; H = Math.max(160, Math.min(720, Math.round((W * (innerHeight || 800)) / (innerWidth || 1280)))) || 200;
+    bg.width = stat.width = W; bg.height = stat.height = H;
+    horizon = Math.round(H * 0.6);
+    const img = sctx.createImageData(W, H), d = img.data;
+    const put = (x, y, c) => { if (x < 0 || x >= W || y < 0 || y >= H) return; const i = (y * W + x) * 4; d[i] = c[0]; d[i + 1] = c[1]; d[i + 2] = c[2]; d[i + 3] = 255; };
+    const band = (cols, y0, y1) => {
+      for (let y = y0; y < y1; y++) {
+        const t = ((y - y0) / Math.max(1, y1 - y0 - 1)) * (cols.length - 1), k = Math.min(Math.floor(t), cols.length - 1), f = t - k;
+        for (let x = 0; x < W; x++) put(x, y, f > BAYER[y & 3][x & 3] && k + 1 < cols.length ? cols[k + 1] : cols[k]);
+      }
+    };
+    band(ramp(th.sky, 7), 0, horizon);
+    band(ramp(th.lake, 6), horizon, H);
+
+    const mount = (peaks, col, shade, snow) => {
+      for (let x = 0; x < W; x++) {
+        let top = horizon, who = null;
+        for (const p of peaks) {
+          const yy = horizon - p.h + Math.abs(x - p.x) * p.s + ((x * 7 + p.x) % 3 === 0 ? 1 : 0);
+          if (yy < top) { top = yy; who = p; }
+        }
+        for (let y = Math.ceil(top); y < horizon; y++) {
+          let c = x > who.x ? shade : col;
+          if (snow && y < horizon - who.h * 0.74 + ((x * 5) % 3)) c = x > who.x + 1 ? hex(th.snow).map((v) => v - 18) : hex(th.snow);
+          put(x, y, Array.isArray(c) ? c : hex(c));
+        }
+      }
+    };
+    const hh = H * 0.5;
+    mount([
+      { x: W * 0.03, h: hh * 0.62, s: 0.9 }, { x: W * 0.15, h: hh * 0.46, s: 1.0 }, { x: W * 0.27, h: hh * 0.3, s: 1.1 },
+      { x: W * 0.72, h: hh * 0.34, s: 1.0 }, { x: W * 0.85, h: hh * 0.6, s: 0.9 }, { x: W * 0.97, h: hh * 0.48, s: 1.0 },
+    ], th.far, th.farShade, true);
+    mount([
+      { x: W * 0.0, h: hh * 0.3, s: 0.7 }, { x: W * 0.12, h: hh * 0.2, s: 0.8 }, { x: W * 0.9, h: hh * 0.24, s: 0.8 }, { x: W * 1.02, h: hh * 0.32, s: 0.7 },
+    ], th.near, th.nearShade, false);
+
+    for (let x = 0; x < W; x++) { put(x, horizon - 1, hex(th.shore)); put(x, horizon, hex(th.shore)); }
+    const R = rng(11), tree = hex(th.tree), treeHi = hex(th.treeHi);
+    for (let x = 0; x < W; x += 2 + Math.floor(R() * 3)) {
+      const side = Math.abs(x / W - 0.5) * 2;
+      if (R() > 0.3 + side * 0.65) continue;
+      const h = Math.round(4 + R() * 6 + side * 9);
+      for (let i = 0; i < h; i++) {
+        const hw = Math.max(0, Math.floor(i * 0.36) - (i % 4 === 0 && i > 3 ? 1 : 0));
+        for (let dx = -hw; dx <= hw; dx++) put(x + dx, horizon - h + i, dx === -hw && hw > 1 ? treeHi : tree);
+      }
+    }
+    sctx.putImageData(img, 0, 0);
+
+    const R2 = rng(5);
+    cloudSprites = [makeCloud(44, 16, 3, th), makeCloud(30, 12, 9, th), makeCloud(56, 18, 21, th)];
+    clouds = Array.from({ length: 7 }, (_, i) => ({ x0: R2() * (W + 60), y: Math.round(H * (0.06 + R2() * 0.36)), v: 1.2 + R2() * 2.2, s: i % 3 }));
+    stars = Array.from({ length: 70 }, () => ({ x: Math.floor(R2() * W), y: Math.floor(R2() * horizon * 0.75), p: Math.floor(R2() * 4) }));
+  }
+
+  function drawBg(t) {
+    const th = THEMES[night ? "night" : "day"];
+    bctx.drawImage(stat, 0, 0);
+    if (night) {
+      stars.forEach((s) => { if ((s.p + Math.floor(t * 2)) % 4 !== 0) px(bctx, s.x, s.y, "#dfe4ff"); });
+      disc(bctx, Math.round(W * 0.82), Math.round(H * 0.12), 6, ["#f3f1d8", "#ffffff", "#c9c6a4"]);
+    }
+    const lakeH = H - horizon;
+    bctx.globalAlpha = 0.42;
+    for (let r = 1; r < lakeH; r++) {
+      const sy = horizon - 1 - Math.floor(r * 0.85);
+      if (sy < 0) break;
+      const off = Math.round(Math.sin(r * 0.55 - t * 2.2) * (0.6 + r * 0.04));
+      bctx.drawImage(stat, 0, sy, W, 1, off, horizon + r, W, 1);
+    }
+    bctx.globalAlpha = 1;
+    clouds.forEach((c) => {
+      const spr = cloudSprites[c.s];
+      const x = ((c.x0 + t * c.v) % (W + spr.width + 20)) - spr.width - 10;
+      bctx.drawImage(spr, Math.round(x), c.y);
+    });
+    const f = Math.floor(t * 4);
+    for (let i = 0; i < 14; i++) {
+      const hsh = (i * 2654435761) >>> 0;
+      if ((hsh + f) % 5 !== 0) continue;
+      px(bctx, hsh % W, horizon + 3 + (hsh >> 8) % Math.max(1, lakeH - 4), th.shimmer, 2 + (hsh % 4), 1);
+    }
+  }
+
+  /* ---------- frame loop ---------- */
+  function frame(t) {
+    drawBg(t); drawOrbit(t); drawMascot(t);
+    live.forEach(([ctx, fn, sc]) => { ctx.clearRect(0, 0, 32, 32); fn(ctx, t); if (sc) shortcut(ctx); });
+  }
+  renderStatic();
+  frame(0);
+  if (!reduce) {
+    let last = 0;
+    const loop = (now) => {
+      requestAnimationFrame(loop);
+      if (document.hidden || now - last < 80) return;
+      last = now; frame(now / 1000);
+    };
+    requestAnimationFrame(loop);
+  }
+  let rt;
+  addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { renderStatic(); frame(performance.now() / 1000); }, 150); });
+
+  /* ---------- Pixel the cat ---------- */
+  const pet = $("#pet"), pcv = $("#pet-cv"), pctx = pcv.getContext("2d");
+  const catBtn = $("#cat-hit"), ballBtn = $("#ball-hit"), say = $("#cat-say");
+  const CO = "#f3a03d", CD = "#c96a1e", CF = "#d9862f", CC = "#ffe7c2", CP = "#ff8fa3";
+  const GW = 32, GH = 24, OX = 14;
+  let S = 4, CW = 320, CH = 34, bedX = 300, now = 0;
+  const cat = { x: 100, dir: 1, st: "sit", t: 0, dur: 5, energy: 0.8, y: 0, vy: 0, vx: 0, tx: 0, phase: 0, moved: false, mouth: 0, blink: 3, petting: false, heart: 0, z: 0, wig: 0, hit: false };
+  const ball = { x: 160, v: 0, y: 0, vy: 0, a: 0 };
+  const parts = [];
+  const ptr = { x: -1, seen: -99, check: 0 };
+  const R = (a, b) => a + Math.random() * (b - a);
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  // The cat is drawn into a small grid, then outlined automatically, then flipped to face left or right.
+  const grid = new Array(GW * GH), out = new Array(GW * GH);
+  const gset = (x, y, c) => { x = Math.round(x); y = Math.round(y); if (x >= 0 && x < GW && y >= 0 && y < GH) grid[y * GW + x] = c; };
+  const gget = (x, y) => (x >= 0 && x < GW && y >= 0 && y < GH ? grid[y * GW + x] : null);
+  const grect = (x, y, w, h, c) => { for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) gset(x + i, y + j, c); };
+  const gell = (cx, cy, rx, ry, c) => {
+    for (let y = Math.ceil(cy - ry); y <= cy + ry; y++) for (let x = Math.ceil(cx - rx); x <= cx + rx; x++) {
+      const dx = (x - cx) / rx, dy = (y - cy) / ry;
+      if (dx * dx + dy * dy <= 1) gset(x, y, c);
+    }
+  };
+  const gline = (x0, y0, x1, y1, c) => {
+    const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0), 1);
+    for (let i = 0; i <= n; i++) grect(Math.round(x0 + ((x1 - x0) * i) / n), Math.round(y0 + ((y1 - y0) * i) / n), 2, 2, c);
+  };
+  const tail = (pts) => { for (let i = 1; i < pts.length; i++) gline(...pts[i - 1], ...pts[i], CO); const [x, y] = pts[pts.length - 1]; grect(x, y, 2, 2, CD); };
+  const stripes = (cols) => cols.forEach((x) => {
+    for (let y = 0; y < GH; y++) if (grid[y * GW + x] === CO) { gset(x, y, CD); if (grid[(y + 1) * GW + x] === CO) gset(x, y + 1, CD); return; }
+  });
+  function head(hx, hy, shut, mouth) {
+    gell(hx, hy, 3.6, 3.4, CO);
+    grect(hx - 3, hy - 4, 2, 2, CO); gset(hx - 3, hy - 5, CO); gset(hx - 2, hy - 4, CP);
+    grect(hx + 2, hy - 4, 2, 2, CO); gset(hx + 3, hy - 5, CO); gset(hx + 2, hy - 4, CP);
+    gset(hx, hy - 2, CD); gset(hx, hy - 3, CD); gset(hx - 2, hy - 2, CD);
+    grect(hx, hy + 2, 3, 1, CC); gset(hx, hy + 1, CC); gset(hx + 2, hy + 1, CC);
+    gset(hx + 1, hy + 1, CP);
+    if (mouth) gset(hx + 1, hy + 2, K);
+    if (shut) { grect(hx - 2, hy, 2, 1, K); grect(hx + 2, hy, 2, 1, K); }
+    else { grect(hx - 1, hy - 1, 1, 2, K); grect(hx + 2, hy - 1, 1, 2, K); }
+  }
+  const leg = (x, y, dx, lift, c) => { gline(x, y, x + dx, 22 - lift, c); grect(x + dx, 23 - lift, 2, 1, CC); };
+
+  function standPose(f, run, swat, shut, mouth) {
+    const bob = run && f === 1 ? 1 : 0;
+    gell(13, 16 - bob, 7, 3.2, CO); stripes([8, 11, 14]);
+    let L;
+    if (f < 0) L = [[7, 0, CF], [15, 0, CF], [10, 0, CO], [18, 0, CO]];
+    else if (run) L = f ? [[8, 2, CF], [16, -2, CF], [10, 2, CO], [18, -2, CO]] : [[7, -2, CF], [15, 2, CF], [9, -3, CO], [18, 3, CO]];
+    else L = f ? [[7, 1, CF], [15, -1, CF], [10, -1, CO], [18, 1, CO]] : [[7, -1, CF], [15, 1, CF], [10, 1, CO], [18, -1, CO]];
+    L.forEach(([x, dx, c], i) => { if (!(swat && i === 3)) leg(x, 18 - bob, dx, !run && dx > 0 ? 1 : 0, c); });
+    if (swat === 1) { gline(18, 16, 22, 12, CO); grect(22, 12, 2, 1, CC); }
+    if (swat === 2) leg(18, 17, 3, 0, CO);
+    head(20, 12 - bob, shut, mouth);
+    const sw = Math.round(Math.sin(now * 2.2));
+    tail(run ? [[6, 15], [3, 14], [1, 13]] : [[6, 14], [4, 12], [3, 10], [4 + sw, 8]]);
+  }
+  function sitPose(shut, mouth, groom) {
+    gell(10, 19, 4.6, 4.2, CO); gell(14, 16, 2.8, 4, CO); stripes([7, 9, 11]);
+    const sw = Math.round(Math.sin(now * 1.8));
+    tail([[6, 22], [2, 22], [1 + sw, 20]]);
+    grect(6, 22, 6, 2, CO); grect(9, 23, 3, 1, CC);
+    leg(13, 17, 0, 0, CF);
+    grect(15, 14, 2, 3, CC);
+    const lick = groom && Math.floor(now * 4) % 2;
+    if (groom) { gline(16, 17, 18, 13, CO); grect(18, 13, 2, 1, CC); }
+    else leg(16, 17, 0, 0, CO);
+    head(16, lick ? 11 : 10, shut, mouth);
+    if (groom) gset(18, lick ? 13 : 12, CP);
+  }
+  function loafPose() {
+    gell(12, 20, 8, 3.4 + Math.sin(now * 2) * 0.35, CO); stripes([7, 10, 13]);
+    tail([[5, 20], [2, 21], [3, 22], [8, 22]]);
+    head(19, 19, true, false);
+    grect(21, 22, 3, 2, CC);
+  }
+  function crouchPose(f, wig, shut) {
+    gell(13, 19.5, 7.5, 2.4, CO); gell(8 + wig, 18, 3.4, 3, CO); stripes([8, 11, 14]);
+    [[7, -1, CF], [15, 1, CF], [10, f ? 1 : -1, CO], [17, f ? -1 : 1, CO]].forEach(([x, dx, c]) => leg(x, 20, dx, 0, c));
+    head(20, 17, shut, false);
+    tail([[5, 17], [2, 17], [0, 16 - wig]]);
+  }
+  function pouncePose() {
+    gell(14, 15, 8.5, 2.6, CO); stripes([8, 11, 14]);
+    gline(17, 15, 22, 19, CF); gline(11, 16, 6, 21, CF);
+    gline(19, 15, 24, 18, CO); grect(24, 19, 2, 1, CC); gline(9, 16, 4, 20, CO);
+    head(22, 13, false, true);
+    tail([[6, 14], [3, 12], [1, 10]]);
+  }
+  function stretchPose() {
+    gell(9, 14, 4, 3, CO); gell(14, 17, 5, 2.4, CO); gell(18, 19.5, 3.4, 2, CO); stripes([8, 11, 14]);
+    leg(8, 15, 0, 0, CF); leg(10, 15, 0, 0, CO);
+    gline(18, 21, 24, 22, CO); grect(24, 23, 2, 1, CC);
+    head(22, 17, true, true);
+    tail([[6, 12], [4, 9], [5, 6]]);
+  }
+  function buildCat() {
+    grid.fill(null);
+    const st = cat.st, f = cat.moved ? Math.floor(cat.phase * 2) % 2 : -1;
+    const shut = cat.blink < 0.14, mouth = cat.mouth > 0;
+    if (st === "sleep") loafPose();
+    else if (st === "stretch") stretchPose();
+    else if (st === "pounce") pouncePose();
+    else if (st === "stalk") crouchPose(Math.max(0, f), cat.wig > 0 ? Math.floor(now * 8) % 2 : 0, false);
+    else if (st === "land") crouchPose(0, 0, false);
+    else if (st === "sit") sitPose(shut, mouth, false);
+    else if (st === "pet") sitPose(true, mouth, false);
+    else if (st === "groom") sitPose(true, false, true);
+    else if (st === "bat") standPose(-1, false, cat.t < 0.25 ? 1 : 2, false, mouth);
+    else standPose(f, st === "chase", 0, shut, mouth);
+    for (let i = 0; i < GW * GH; i++) {
+      out[i] = grid[i];
+      if (grid[i]) continue;
+      const x = i % GW, y = (i / GW) | 0;
+      if (gget(x - 1, y) || gget(x + 1, y) || gget(x, y - 1) || gget(x, y + 1)) out[i] = K;
+    }
+  }
+
+  const HEART = [".P.P.", "PPPPP", "PPPPP", ".PPP.", "..P.."], ZED = ["ZZZ", "..Z", ".Z.", "ZZZ"];
+  const inBed = () => cat.st === "sleep" && Math.abs(cat.x - bedX) < 4;
+  function drawCat() {
+    pctx.clearRect(0, 0, CW, CH);
+    const bx = Math.round(bedX) - 14;
+    px(pctx, bx + 1, CH - 7, K, 26, 1); px(pctx, bx, CH - 6, K, 28, 6);
+    px(pctx, bx + 1, CH - 6, "#8fa0de", 26, 5); px(pctx, bx + 2, CH - 6, "#b9c6f5", 24, 1);
+    buildCat();
+    const cx = Math.round(cat.x), top = CH - GH - Math.round(cat.y) - (inBed() ? 2 : 0);
+    for (let y = 0; y < GH; y++) for (let x = 0; x < GW; x++) { const c = out[y * GW + x]; if (c) px(pctx, cx + cat.dir * (x - OX), top + y, c); }
+    const bcx = Math.round(ball.x), bcy = CH - 4 - Math.round(ball.y);
+    disc(pctx, bcx, bcy, 3, ["#e2504c", "#ff9b8f", "#a52f2f"]);
+    px(pctx, bcx + Math.round(Math.cos(ball.a) * 1.5), bcy + Math.round(Math.sin(ball.a) * 1.5), "#7d1f1f");
+    px(pctx, bx, CH - 4, K, 28, 4); px(pctx, bx + 1, CH - 3, "#2a4fd1", 26, 3); px(pctx, bx + 1, CH - 3, "#4a6ee6", 26, 1);
+    parts.forEach((p) => {
+      if (p.t > 1.8 && Math.floor(p.t * 10) % 2) return;
+      drawMap(pctx, p.k === "h" ? HEART : ZED, Math.round(p.x), Math.round(p.y), { P: "#ff5d7a", Z: "#ffffff" });
+    });
+    catBtn.style.transform = `translate(${(cat.x - 10) * S}px, ${(CH - 18 - cat.y) * S}px)`;
+    ballBtn.style.transform = `translate(${(ball.x - 4) * S}px, ${(CH - 8 - ball.y) * S}px)`;
+    if (!say.hidden) {
+      say.style.left = clamp(cat.x * S - 20, 4, Math.max(4, innerWidth - say.offsetWidth - 4)) + "px";
+      say.style.bottom = (cat.st === "sleep" ? 14 : 20) * S + cat.y * S + "px";
+    }
+  }
+
+  const napBtn = $("#cat-nap");
+  function setSt(st, dur = 1) {
+    cat.st = st; cat.t = 0; cat.dur = dur;
+    napBtn.textContent = st === "sleep" || st === "toBed" ? "Wake Pixel up" : "Tell Pixel to nap";
+  }
+  const pick = (w) => { let s = 0; for (const k in w) s += w[k]; let r = Math.random() * s; for (const k in w) if ((r -= w[k]) <= 0) return k; return "idle"; };
+  function decide() {
+    if (cat.energy < 0.22) return setSt("toBed", 30);
+    const k = pick({ idle: 2, sit: 2.2, groom: 1.1, wander: 3, chase: Math.abs(ball.x - cat.x) > 18 ? 2 * cat.energy : 0 });
+    if (k === "idle") setSt("idle", R(1.5, 3.5));
+    else if (k === "sit") setSt("sit", R(3, 7));
+    else if (k === "groom") setSt("groom", R(2.5, 4.5));
+    else if (k === "wander") { setSt("wander", 12); cat.tx = R(14, CW - 14); }
+    else setSt("chase", 8);
+  }
+  function walkTo(tx, sp, dt) {
+    const d = tx - cat.x;
+    if (Math.abs(d) < 0.6) return true;
+    cat.dir = Math.sign(d);
+    const step = Math.min(Math.abs(d), sp * dt);
+    cat.x += cat.dir * step; cat.phase += step / 6; cat.moved = true;
+    return Math.abs(d) - step < 0.6;
+  }
+  function pounce(tx) {
+    const T = 0.55;
+    cat.vy = (150 * T) / 2; cat.vx = clamp((tx - cat.dir * 6 - cat.x) / T, -90, 90); cat.y = 0.01;
+    setSt("pounce", 2);
+  }
+  const awake = () => ["idle", "sit", "wander", "groom"].includes(cat.st);
+
+  function update(dt) {
+    now += dt; cat.t += dt; cat.moved = false;
+    cat.mouth -= dt; cat.blink -= dt; if (cat.blink < 0) cat.blink = R(2.5, 5);
+    const st = cat.st, watching = now - ptr.seen < 1.5;
+    const drain = { wander: 0.012, chase: 0.035, bat: 0.03, stalk: 0.015, pounce: 0.05 }[st] ?? 0.004;
+    cat.energy = st === "sleep" ? Math.min(1, cat.energy + dt * 0.05) : Math.max(0, cat.energy - drain * dt);
+
+    switch (st) {
+      case "idle": case "sit": case "groom":
+        if (st !== "groom" && watching && Math.abs(ptr.x - cat.x) > 3) cat.dir = Math.sign(ptr.x - cat.x);
+        if (cat.t > cat.dur) decide();
+        break;
+      case "wander": if (walkTo(cat.tx, 14, dt) || cat.t > cat.dur) setSt("idle", R(1, 2.5)); break;
+      case "chase": {
+        const d = ball.x - cat.x;
+        if (Math.abs(d) < 13) { cat.dir = Math.sign(d) || cat.dir; cat.hit = false; setSt("bat", 0.5); }
+        else { walkTo(ball.x - Math.sign(d) * 12, 40, dt); if (cat.t > cat.dur) setSt("sit", R(2, 4)); }
+        break;
+      }
+      case "bat":
+        if (!cat.hit && cat.t > 0.2) {
+          cat.hit = true;
+          const d = ball.x - cat.x;
+          if (Math.abs(d) < 16 && Math.sign(d) === cat.dir) { ball.v = cat.dir * R(35, 75); ball.vy = R(10, 26); }
+        }
+        if (cat.t > cat.dur) { if (Math.random() < 0.55 && cat.energy > 0.3) setSt("chase", 8); else setSt("sit", R(2, 5)); }
+        break;
+      case "toBed":
+        if (walkTo(bedX, 12, dt)) { cat.dir = -1; setSt("sleep", R(25, 45)); status("Pixel is asleep."); }
+        break;
+      case "sleep": if (cat.energy >= 1 && cat.t > cat.dur) setSt("stretch", 1.6); break;
+      case "stretch": if (cat.t > cat.dur) setSt("idle", R(1, 2)); break;
+      case "stalk": {
+        if (!watching && cat.t > 1) { setSt("idle", 1.5); break; }
+        const d = ptr.x - cat.x;
+        if (Math.abs(d) > 18) { walkTo(ptr.x - Math.sign(d) * 16, 7, dt); cat.wig = 0; }
+        else { cat.dir = Math.sign(d) || cat.dir; cat.wig += dt; if (cat.wig > 0.9) pounce(ptr.x); }
+        if (cat.st === "stalk" && cat.t > 10) setSt("idle", 1);
+        break;
+      }
+      case "pounce":
+        cat.x += cat.vx * dt; cat.vy -= 150 * dt; cat.y += cat.vy * dt;
+        if (cat.y <= 0) { cat.y = 0; setSt("land", 0.35); }
+        break;
+      case "land": if (cat.t > cat.dur) setSt("sit", R(2, 4)); break;
+      case "pet": if (!cat.petting && cat.t > cat.dur) setSt("sit", R(2, 4)); break;
+    }
+    cat.x = clamp(cat.x, 12, CW - 12);
+    if (Math.abs(ball.v) > 15 && awake() && cat.energy > 0.3 && Math.random() < 1 - Math.exp(-1.5 * dt)) setSt("chase", 8);
+
+    ball.v *= Math.exp(-0.9 * dt); if (Math.abs(ball.v) < 0.8) ball.v = 0;
+    ball.x += ball.v * dt; ball.a += (ball.v * dt) / 3;
+    if (ball.x < 4) { ball.x = 4; ball.v = Math.abs(ball.v) * 0.7; }
+    if (ball.x > CW - 4) { ball.x = CW - 4; ball.v = -Math.abs(ball.v) * 0.7; }
+    if (ball.y > 0 || ball.vy) {
+      ball.vy -= 160 * dt; ball.y += ball.vy * dt;
+      if (ball.y <= 0) { ball.y = 0; ball.vy = ball.vy < -15 ? -ball.vy * 0.4 : 0; }
+    }
+    // Ball bumps off the cat. Chase stops at 13, so this 9.5 push never keeps the cat from reaching it.
+    if (cat.st !== "sleep" && cat.y < 3 && ball.y < 5) {
+      const d = ball.x - cat.x;
+      if (Math.abs(d) < 9.5) {
+        const s = Math.sign(d) || cat.dir;
+        ball.x = clamp(cat.x + s * 9.5, 4, CW - 4);
+        if (Math.sign(ball.v) !== s) ball.v = s * Math.abs(ball.v) * 0.5;
+      }
+    }
+
+    if (cat.petting) { cat.heart -= dt; if (cat.heart <= 0) { cat.heart = 0.4; parts.push({ k: "h", x: cat.x + cat.dir * R(1, 6) - 2, y: CH - 21, t: 0 }); } }
+    if (cat.st === "sleep") { cat.z -= dt; if (cat.z <= 0) { cat.z = 1.4; parts.push({ k: "z", x: cat.x + cat.dir * 6, y: CH - 14, t: 0 }); } }
+    for (let i = parts.length - 1; i >= 0; i--) {
+      const p = parts[i]; p.t += dt; p.y -= 6 * dt; p.x += Math.sin(p.t * 3) * 0.15;
+      if (p.t > 2.2) parts.splice(i, 1);
+    }
+  }
+
+  let sayT;
+  function speak(w) {
+    say.textContent = w; say.hidden = false;
+    clearTimeout(sayT); sayT = setTimeout(() => (say.hidden = true), 1600);
+    drawCat();
+  }
+  function status(msg) { const s = $("#cat-status"); s.textContent = ""; setTimeout(() => (s.textContent = msg), 30); }
+  function kickBall(s) {
+    ball.v = s * R(55, 85); ball.vy = R(8, 20);
+    if (reduce) { ball.x = clamp(ball.x + s * 40, 4, CW - 4); ball.v = ball.vy = 0; drawCat(); }
+    else if (awake() && cat.energy > 0.25 && Math.random() < 0.9) setSt("chase", 8);
+    status("You rolled the ball.");
+  }
+  function napToggle() {
+    if (cat.st === "sleep" || cat.st === "toBed") {
+      cat.energy = Math.max(cat.energy, 0.6);
+      setSt(reduce ? "sit" : "stretch", 1.6); status("Pixel is awake.");
+    } else {
+      cat.energy = Math.min(cat.energy, 0.5); cat.y = 0;
+      if (reduce) { cat.x = bedX; cat.dir = -1; setSt("sleep", 30); status("Pixel is asleep."); }
+      else { setSt("toBed", 30); status("Pixel is going to bed."); }
+    }
+    if (reduce) drawCat();
+  }
+  catBtn.addEventListener("click", () => {
+    const w = ["mrrp?", "mew!", "prrrt", "mrow"][Math.floor(Math.random() * 4)];
+    cat.mouth = 0.6;
+    if (cat.st === "sleep" || cat.st === "toBed") { cat.energy = Math.max(cat.energy, 0.6); setSt(reduce ? "sit" : "stretch", 1.6); }
+    else if (awake()) { setSt("sit", R(2, 4)); if (now - ptr.seen < 1.5) cat.dir = Math.sign(ptr.x - cat.x) || cat.dir; }
+    speak(w); status(`Pixel says ${w}`);
+  });
+  catBtn.addEventListener("pointerenter", (e) => {
+    if (e.pointerType !== "mouse" || reduce) return;
+    cat.petting = true; cat.heart = 0;
+    if (awake() || cat.st === "land") { setSt("pet", 0.8); speak("prrr"); }
+  });
+  catBtn.addEventListener("pointerleave", () => { cat.petting = false; if (cat.st === "pet") cat.t = 0; });
+  ballBtn.addEventListener("click", (e) => {
+    kickBall(e.detail ? (e.clientX / S < ball.x ? 1 : -1) : (ball.x < cat.x ? -1 : 1));
+  });
+  addEventListener("pointermove", (e) => {
+    if (e.pointerType !== "mouse" || reduce) return;
+    if (e.clientY < innerHeight - 56 - 220 || e.clientY > innerHeight - 56) return;
+    ptr.x = e.clientX / S; ptr.seen = now;
+    const since = Math.min(0.5, now - ptr.check); ptr.check = now;
+    if (["idle", "sit", "wander"].includes(cat.st) && cat.energy > 0.3 && !cat.petting) {
+      const d = Math.abs(ptr.x - cat.x);
+      if (d > 18 && d < 110 && Math.random() < 1 - Math.exp(-0.35 * since)) { cat.wig = 0; setSt("stalk", 10); }
+    }
+  }, { passive: true });
+
+  function sizePet() {
+    S = small() ? 3 : 4;
+    CW = Math.ceil((innerWidth || 1280) / S);
+    pcv.width = CW; pcv.height = CH;
+    pcv.style.width = CW * S + "px"; pcv.style.height = CH * S + "px";
+    pet.style.height = CH * S + "px";
+    catBtn.style.width = 20 * S + "px"; catBtn.style.height = 18 * S + "px";
+    ballBtn.style.width = ballBtn.style.height = 8 * S + "px";
+    bedX = CW - 18;
+    cat.x = clamp(cat.x, 12, CW - 12); ball.x = clamp(ball.x, 4, CW - 4);
+  }
+  sizePet();
+  cat.x = Math.round(CW * 0.35); ball.x = Math.round(CW * 0.55);
+  setSt("sit", 5);
+  drawCat();
+  addEventListener("resize", () => { sizePet(); drawCat(); });
+  if (!reduce) {
+    let last = performance.now();
+    const step = (t) => {
+      requestAnimationFrame(step);
+      if (document.hidden) { last = t; return; }
+      if (t - last < 33) return;
+      update(Math.min(0.1, (t - last) / 1000)); last = t;
+      drawCat();
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* ---------- typing headline ---------- */
+  const LINES = ["HELLO, WORLD.", "LET'S BUILD."];
+  if (reduce) { $("#l1").textContent = LINES[0]; $("#l2").textContent = LINES[1]; }
+  else {
+    let li = 0, ci = 0;
+    const type = () => {
+      const el = li === 0 ? $("#l1") : $("#l2");
+      el.textContent = LINES[li].slice(0, ++ci);
+      if (ci < LINES[li].length) return setTimeout(type, 55 + Math.random() * 60);
+      if (li === 0) { li = 1; ci = 0; setTimeout(type, 380); }
+    };
+    setTimeout(type, 400);
+  }
+
+  /* ---------- clock ---------- */
+  const tick = () => {
+    const d = new Date(), p = (n) => String(n).padStart(2, "0");
+    const c = $("#clock");
+    c.textContent = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    c.title = `${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+  tick(); setInterval(tick, 30000);
+
+  /* ---------- toast + mascot tips ---------- */
+  let toastT;
+  const toast = (msg) => { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => (t.hidden = true), 2600); };
+  const TIPS = [
+    "Hi! I'm Doc. Click an icon below to open a project.",
+    "You can drag windows around by their blue title bar.",
+    "Try View › Night mode.",
+    "Want to work together? Help › Contact.",
+    "Every icon opens a real project. No filler.",
+    "Pixel the cat lives on the taskbar. Hover to pet, click to say hi.",
+  ];
+  let tipI = 0, bubT;
+  const tip = () => {
+    const b = $("#bubble"); b.textContent = TIPS[tipI++ % TIPS.length]; b.hidden = false;
+    clearTimeout(bubT); bubT = setTimeout(() => (b.hidden = true), 6000);
+  };
+  $("#mascot-btn").addEventListener("click", tip);
+  setTimeout(tip, 2600);
+
+  /* ---------- windows ---------- */
+  let z = 30;
+  const wins = new Map(); // id -> {el, title, min, opener}
+  const welcome = $("#win-welcome");
+  wins.set("welcome", { el: welcome, title: "rohanahire.com", min: false });
+  let active = "welcome";
+
+  function focusWin(id) {
+    const w = wins.get(id); if (!w) return;
+    active = id; w.el.style.zIndex = ++z;
+    wins.forEach((v, k) => v.el.classList.toggle("inactive", k !== id));
+    renderTasks();
+  }
+  function renderTasks() {
+    const box = $("#tasks"); box.innerHTML = "";
+    wins.forEach((w, id) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "task bevel" + (id === active && !w.min ? " active" : "");
+      b.textContent = w.title; b.setAttribute("aria-pressed", id === active && !w.min);
+      b.addEventListener("click", () => {
+        if (w.min) restore(id); else if (id === active) minimize(id); else focusWin(id);
+      });
+      box.appendChild(b);
+    });
+  }
+  function minimize(id) { const w = wins.get(id); w.min = true; w.el.hidden = true; active = null; renderTasks(); }
+  function restore(id) { const w = wins.get(id); w.min = false; w.el.hidden = false; focusWin(id); }
+  function closeWin(id) {
+    const w = wins.get(id); if (!w) return;
+    if (id === "welcome") { w.el.hidden = true; w.el.classList.remove("max"); }
+    else w.el.remove();
+    wins.delete(id); active = null; renderTasks();
+    if (w.opener && document.contains(w.opener)) w.opener.focus();
+  }
+  function toggleMax(id) {
+    const w = wins.get(id); const on = w.el.classList.toggle("max");
+    const b = w.el.querySelector('[data-act="max"]'); if (b) b.setAttribute("aria-label", on ? "Restore window" : "Maximize window");
+    focusWin(id);
+  }
+  function openWelcome() {
+    if (!wins.has("welcome")) { wins.set("welcome", { el: welcome, title: "rohanahire.com", min: false }); }
+    restore("welcome");
+    welcome.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+  }
+
+  function wireWindow(id, el) {
+    el.querySelectorAll(".tb-btns button").forEach((b) => b.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const a = b.dataset.act;
+      if (a === "min") minimize(id); else if (a === "max") toggleMax(id); else closeWin(id);
+    }));
+    el.addEventListener("pointerdown", () => { if (active !== id) focusWin(id); });
+    const bar = el.querySelector(".titlebar");
+    bar.addEventListener("dblclick", (e) => { if (!e.target.closest("button") && !small()) toggleMax(id); });
+    bar.addEventListener("pointerdown", (e) => {
+      if (e.target.closest("button") || small() || el.classList.contains("max") || e.button !== 0) return;
+      const sx = e.clientX, sy = e.clientY;
+      const [ox, oy] = (el.style.translate || "0px 0px").split(" ").map((v) => parseFloat(v) || 0);
+      const rect = el.getBoundingClientRect();
+      bar.setPointerCapture(e.pointerId);
+      const move = (ev) => {
+        let dx = ev.clientX - sx, dy = ev.clientY - sy;
+        dy = Math.max(dy, -rect.top);
+        dx = Math.max(Math.min(dx, innerWidth - 80 - rect.left), 80 - rect.right);
+        el.style.translate = `${ox + dx}px ${oy + dy}px`;
+      };
+      const up = () => { bar.removeEventListener("pointermove", move); bar.removeEventListener("pointerup", up); bar.removeEventListener("pointercancel", up); };
+      bar.addEventListener("pointermove", move); bar.addEventListener("pointerup", up); bar.addEventListener("pointercancel", up);
+    });
+  }
+  wireWindow("welcome", welcome);
+
+  const TB_BTNS = welcome.querySelector(".tb-btns").outerHTML;
+  function makeWin(id, title, bodyHTML, opener) {
+    if (wins.has(id)) { const w = wins.get(id); w.el.hidden = false; w.min = false; focusWin(id); w.el.querySelector(".win-body").focus(); return w.el; }
+    const el = document.createElement("section");
+    el.className = "win fwin"; el.setAttribute("role", "dialog"); el.setAttribute("aria-labelledby", `t-${id}`);
+    el.innerHTML = `<div class="titlebar"><canvas class="px logo" width="10" height="12" aria-hidden="true"></canvas>
+      <span class="ttl" id="t-${id}">${title}</span>${TB_BTNS}</div><div class="win-body" tabindex="-1">${bodyHTML}</div>`;
+    $("#layer").appendChild(el);
+    drawMap(el.querySelector("canvas.logo").getContext("2d"), LOGO, 0, 0);
+    const n = [...wins.keys()].filter((k) => k !== "welcome").length % 5;
+    const w = Math.min(580, innerWidth - 32);
+    el.style.translate = `${Math.max(16, innerWidth / 2 - w / 2 - 60 + n * 30)}px ${Math.max(16, 70 + n * 30)}px`;
+    wins.set(id, { el, title, min: false, opener });
+    wireWindow(id, el);
+    el.querySelectorAll("[data-close]").forEach((b) => b.addEventListener("click", () => closeWin(id)));
+    focusWin(id);
+    el.querySelector(".win-body").focus();
+    return el;
+  }
+
+  function openProject(pid, opener) {
+    const p = projects.find((x) => x.id === pid); if (!p) return;
+    const el = makeWin(pid, `${p.name}.exe`, `
+      <div class="proj-head"><canvas class="px" width="32" height="32" aria-hidden="true"></canvas>
+        <div><h2>${p.name}</h2><p>${p.kind}</p></div></div>
+      <dl class="facts"><dt>Status</dt><dd>${p.status}</dd><dt>Year</dt><dd>${p.year}</dd><dt>Stack</dt><dd>${p.stack}</dd></dl>
+      <p class="body">${p.blurb}</p>
+      <div class="actions">
+        ${p.live ? `<a class="btn blue" href="${p.live}" target="_blank" rel="noopener">Open it live ↗<span class="sr"> (opens in a new tab)</span></a>` : ""}
+        <button type="button" class="btn bevel" data-close>Close</button>
+      </div>`, opener);
+    const c = el.querySelector(".proj-head canvas");
+    if (c && !c.dataset.live) { c.dataset.live = 1; const ctx = c.getContext("2d"); live.push([ctx, p.draw, false]); ctx.clearRect(0, 0, 32, 32); p.draw(ctx, 0); }
+  }
+  function openAbout(opener) {
+    makeWin("about", "About.txt", `
+      <div class="proj-head"><canvas class="px" width="26" height="26" aria-hidden="true" id="about-doc"></canvas><div><h2>Rohan Ahire</h2><p>Builder · India · Remote</p></div></div>
+      <p class="body">I'm an engineer who takes ideas from the first commit to something people can use. Right now that means a scanner for Indian stock markets, a geography game with daily challenges, and a chess coach that reads your games. Small tools, done properly.</p>
+      <h3 style="font-family:Silkscreen;font-size:16px;margin:0 0 6px">Now</h3>
+      <ul class="now"><li>Shipping Flaggo daily challenges</li><li>Tuning Multibagger signals</li><li>Coachmate bot difficulty modes</li><li>Reading Clenow, Stocks on the Move</li><li>Exploring WASM engines</li></ul>
+      <div class="actions"><button type="button" class="btn blue" data-cmd="contact">Get in touch</button><button type="button" class="btn bevel" data-close>Close</button></div>`, opener);
+    const c = $("#about-doc"); if (c && !c.dataset.live) { c.dataset.live = 1; const ctx = c.getContext("2d"); live.push([ctx, drawMascotTo, false]); drawMascotTo(ctx, 0); }
+  }
+  function drawMascotTo(ctx, t) {
+    ctx.clearRect(0, 0, 26, 26);
+    const rows = BODY.slice(); if (t % 4 < 0.18) rows[7] = BLINK_ROW;
+    drawMap(ctx, rows, 3, 1);
+  }
+  function openContact(opener) {
+    makeWin("contact", "New message", `
+      <div class="proj-head"><div><h2>Let's build.</h2><p>Email is the fastest way to reach me.</p></div></div>
+      <div class="email-box">${EMAIL}</div>
+      <div class="actions">
+        <a class="btn blue" href="mailto:${EMAIL}?subject=Hello%20via%20rohanahire.com">Write an email</a>
+        <button type="button" class="btn bevel" data-cmd="copy-email">Copy address</button>
+        <a class="btn bevel" href="https://github.com/rohan-ahire1" target="_blank" rel="noopener">GitHub<span class="sr"> (opens in a new tab)</span></a>
+        <a class="btn bevel" href="https://linkedin.com/in/rohanahire" target="_blank" rel="noopener">LinkedIn<span class="sr"> (opens in a new tab)</span></a>
+      </div>`, opener);
+  }
+
+  /* ---------- menus ---------- */
+  const closeMenus = () => {
+    $$(".dropdown.open").forEach((d) => d.classList.remove("open"));
+    $$('.mb[aria-expanded="true"]').forEach((b) => b.setAttribute("aria-expanded", "false"));
+  };
+  $$(".mb").forEach((mb) => {
+    mb.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const dd = mb.nextElementSibling, open = !dd.classList.contains("open");
+      closeMenus(); closeStart();
+      if (open) {
+        dd.classList.add("open"); mb.setAttribute("aria-expanded", "true");
+        if (dd.classList.contains("right-sm")) dd.classList.toggle("right", small());
+        if (e.detail === 0) dd.querySelector("button")?.focus();
+      }
+    });
+    mb.addEventListener("mouseenter", () => {
+      if ($(".dropdown.open") && !mb.nextElementSibling.classList.contains("open")) mb.click();
+    });
+  });
+  $$(".dropdown").forEach((dd) => dd.addEventListener("keydown", (e) => {
+    const items = $$("button", dd), i = items.indexOf(document.activeElement);
+    if (e.key === "ArrowDown") { e.preventDefault(); items[(i + 1) % items.length].focus(); }
+    if (e.key === "ArrowUp") { e.preventDefault(); items[(i - 1 + items.length) % items.length].focus(); }
+  }));
+
+  const startBtn = $("#start"), startMenu = $("#startmenu");
+  function closeStart() { startMenu.hidden = true; startBtn.setAttribute("aria-expanded", "false"); }
+  startBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); closeMenus();
+    const open = startMenu.hidden;
+    startMenu.hidden = !open; startBtn.setAttribute("aria-expanded", String(open));
+    if (open) startMenu.querySelector("button").focus();
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dropdown, .mb")) closeMenus();
+    if (!e.target.closest("#startmenu, #start")) closeStart();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if ($(".dropdown.open")) { const mb = $('.mb[aria-expanded="true"]'); closeMenus(); mb?.focus(); return; }
+    if (!startMenu.hidden) { closeStart(); startBtn.focus(); return; }
+    const fw = document.activeElement?.closest(".fwin");
+    if (fw) { for (const [id, w] of wins) if (w.el === fw) { closeWin(id); break; } }
+  });
+
+  /* ---------- commands ---------- */
+  function setNight(on) {
+    night = on; document.body.classList.toggle("night", on);
+    try { localStorage.setItem("pixel-night", on ? "1" : "0"); } catch (e) {}
+    $$('[data-cmd="night"] .check').forEach((c) => (c.textContent = on ? "✓" : ""));
+    renderStatic(); frame(performance.now() / 1000);
+  }
+  function goWork() {
+    $("#work").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" });
+    $$(".icon").forEach((ic, i) => { ic.classList.remove("pulse"); setTimeout(() => ic.classList.add("pulse"), 300 + i * 90); setTimeout(() => ic.classList.remove("pulse"), 1800 + i * 90); });
+    setTimeout(() => $(".icon")?.focus({ preventScroll: true }), 500);
+  }
+  function run(cmd, src) {
+    closeMenus(); closeStart();
+    switch (cmd) {
+      case "work": return goWork();
+      case "about": return openAbout(src);
+      case "contact": return openContact(src);
+      case "welcome": return openWelcome();
+      case "close-welcome": return closeWin("welcome");
+      case "max-welcome": if (!wins.has("welcome")) openWelcome(); return small() ? null : toggleMax("welcome");
+      case "night": return setNight(!night);
+      case "tip": return tip();
+      case "cat-ball": return kickBall(Math.random() < 0.5 ? -1 : 1);
+      case "cat-nap": return napToggle();
+      case "copy-email":
+        return navigator.clipboard?.writeText(EMAIL).then(() => toast("Email address copied")).catch(() => toast(EMAIL)) ?? toast(EMAIL);
+      case "shutdown": $("#shutdown").hidden = false; $("#restart").focus(); return;
+    }
+  }
+  document.addEventListener("click", (e) => {
+    const c = e.target.closest("[data-cmd]"); if (c) return run(c.dataset.cmd, c);
+    const o = e.target.closest("[data-open]"); if (o) { closeMenus(); closeStart(); return openProject(o.dataset.open, o.classList.contains("icon") ? o : null); }
+    const g = e.target.closest("[data-go]"); if (g) return run(g.dataset.go === "work" ? "work" : g.dataset.go, g);
+  });
+  $("#restart").addEventListener("click", () => { $("#shutdown").hidden = true; openWelcome(); });
+  $(".brand").addEventListener("click", (e) => { e.preventDefault(); openWelcome(); scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
+
+  if (night) setNight(true);
+  renderTasks();
+})();
+</script>
+</body>
+</html>

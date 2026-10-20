@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rohan Ahire</title>
+<meta name="description" content="Rohan Ahire builds trading systems, games, and AI tools, end to end.">
+<meta name="theme-color" content="#061a6e">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/os.css">
+<script>
+  // phones get the home-screen version; ?desktop keeps this one for the rest of the visit
+  (function () {
+    try { if (/[?&]desktop\b/.test(location.search)) sessionStorage.setItem("pxos-desktop", "1"); if (sessionStorage.getItem("pxos-desktop")) return; } catch (e) {}
+    if (matchMedia("(max-width: 760px), (pointer: coarse) and (max-height: 500px)").matches) location.replace("phone.html");
+  })();
+</script>
+</head>
+<body>
+<canvas id="bg" aria-hidden="true"></canvas>
+<main id="desk" aria-label="PixelOS desktop"><div id="icons" role="listbox"></div></main>
+<div id="live" class="sr" aria-live="polite"></div>
+<noscript>
+  <div class="nojs">
+    <h1>Rohan Ahire</h1>
+    <p>I build trading systems, games, and AI tools. End to end, solo. This site is a little desktop that needs JavaScript; here's the short version.</p>
+    <ul>
+      <li><a href="https://flaggo.rohanahire.com">Flaggo</a>: a geography game with daily challenges and spaced repetition.</li>
+      <li>Coachmate: a chess coach that finds the mistakes you keep making.</li>
+      <li>Multibagger: a daily scanner for every NSE stock.</li>
+      <li>Extracta: a demo of document extraction, documents in, structured data out.</li>
+      <li>WA Cleaner: an Android app that removes duplicate media safely.</li>
+      <li>Clenow NSE: momentum rules, tested on Indian stocks.</li>
+    </ul>
+    <p><a href="mailto:rohanahire1607@gmail.com">rohanahire1607@gmail.com</a> · <a href="https://github.com/rohan-ahire1">GitHub</a> · <a href="https://linkedin.com/in/rohanahire">LinkedIn</a></p>
+  </div>
+</noscript>
+<script type="module" src="js/main.js"></script>
+<!-- Cloudflare Web Analytics -->
+<script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f62e4450b9e3440e8d6b5a615493a2e5"}'></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+/* PixelOS for phones: status bar, home screen and dock around the shared windows. */
+body.phone { --sb: 28px; --tb: calc(64px + env(safe-area-inset-bottom)); }
+.phone #desk { top: calc(var(--sb) + env(safe-area-inset-top)); bottom: var(--tb); }
+
+/* ---------- status bar ---------- */
+.p-status {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 2; height: calc(var(--sb) + env(safe-area-inset-top));
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: env(safe-area-inset-top) 14px 0; background: var(--lo); color: #fff; font-size: 15px;
+  box-shadow: 0 2px 0 var(--navy);
+}
+.p-status b { font-weight: 500; min-width: 64px; }
+.p-os { font-family: var(--display); font-size: 12px; letter-spacing: .04em; opacity: .8; }
+.p-ind { display: flex; align-items: center; gap: 6px; min-width: 64px; justify-content: flex-end; }
+.p-svg svg { display: block; height: 10px; width: auto; }
+
+/* ---------- home ---------- */
+.p-home {
+  position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  padding: 14px 16px 24px; touch-action: pan-y;
+}
+.p-hero {
+  padding: 12px 12px 12px; background: var(--chrome); border: 2px solid var(--navy); box-shadow: var(--out), var(--drop-s);
+}
+.p-hero-top { display: flex; align-items: center; gap: 12px; }
+.p-mebtn { position: relative; flex: none; padding: 4px; border: 0; background: #fff; box-shadow: var(--in); }
+.p-me { width: 72px; height: 76px; }
+.p-say {
+  position: absolute; left: 6px; top: -34px; z-index: 3; padding: 4px 8px; white-space: nowrap; font-size: 14px;
+  background: var(--tip); border: 2px solid var(--navy); box-shadow: var(--drop-s);
+}
+.p-hero h1 { margin: 0 0 4px; font-family: var(--display); font-size: 24px; line-height: 1.05; }
+.p-hero p { margin: 0; font-size: 16px; line-height: 1.3; color: var(--muted); }
+.p-now {
+  display: flex; gap: 8px; align-items: center; width: 100%; margin-top: 12px; padding: 6px 8px; min-width: 0;
+  border: 0; text-align: left; background: var(--navy); color: #cfe0ff; font-family: var(--mono); font-size: 15px;
+}
+.p-now i { margin-left: auto; font-style: normal; color: var(--hi); }
+.p-now b { color: var(--g, #3fd16b); font-weight: 400; }
+.p-now-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-now-t.in { animation: p-type .4s steps(6); }
+@keyframes p-type { from { clip-path: inset(0 100% 0 0); } }
+.p-links { display: flex; gap: 6px; margin-top: 10px; }
+.p-link { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 36px; text-decoration: none; color: var(--ink); }
+
+.p-sec {
+  margin: 22px 2px 6px; font-family: var(--display); font-size: 14px; font-weight: 400; letter-spacing: .06em; text-transform: uppercase; color: #fff;
+  text-shadow: 1px 0 0 var(--navy), -1px 0 0 var(--navy), 0 1px 0 var(--navy), 0 -1px 0 var(--navy), 2px 2px 0 var(--navy);
+}
+.p-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 6px 2px; }
+.p-desk {
+  display: block; width: max-content; margin: 26px auto 0; padding: 2px 6px; font-size: 14px; color: #fff;
+  text-shadow: 1px 0 0 var(--navy), -1px 0 0 var(--navy), 0 1px 0 var(--navy), 0 -1px 0 var(--navy);
+}
+.p-desk:hover { color: #fff; }
+.p-app {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; padding: 6px 0 4px;
+  border: 0; background: none; color: #fff;
+}
+.p-app canvas { pointer-events: none; }
+.p-app .lbl {
+  max-width: 100%; padding: 0 2px; font-size: 14px; line-height: 1.15; text-align: center; overflow-wrap: anywhere;
+  text-shadow: 1px 0 0 var(--navy), -1px 0 0 var(--navy), 0 1px 0 var(--navy), 0 -1px 0 var(--navy), 2px 2px 0 var(--navy);
+}
+.p-app:active .lbl { background: var(--title); text-shadow: none; }
+.p-app.hop canvas { animation: hop .5s steps(3) 1; }
+
+/* ---------- dock ---------- */
+.p-dock {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500; height: var(--tb);
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 6px 8px env(safe-area-inset-bottom);
+  background: var(--chrome); border-top: 2px solid var(--navy); box-shadow: inset 0 2px 0 #fff;
+}
+.p-dk {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-width: 0;
+  border: 0; background: none; font-size: 13px; color: var(--ink);
+}
+.p-dk:active, .p-dk.on { background: #cdd0de; box-shadow: var(--in); }
+.p-dk canvas { pointer-events: none; }
+
+/* windows fill the screen between the status bar and the dock */
+/* (also in landscape, where os.css's phone rules stop at 760px) */
+.phone .win:not(.dialog) { left: 0 !important; top: 0 !important; width: 100% !important; height: 100% !important; border-width: 0; padding: 0; box-shadow: none; }
+.phone .tbtns .mx, .phone .win .rz { display: none; }
+.phone .tbar { height: 38px; }
+.phone .tbtns button { width: 32px; height: 28px; }
