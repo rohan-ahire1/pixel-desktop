@@ -1,5 +1,5 @@
 // File explorer: back/forward/up, typed paths, three views, a details pane, and the Recycle Bin.
-import { h, bus, store, uid, announce } from "../core.js";
+import { h, bus, store, uid, announce, phone } from "../core.js";
 import { icon, iconSel, iconName } from "../px.js";
 import { openWindow, msgbox, list as winList } from "../wm.js";
 import { openMenu } from "../menu.js";
@@ -249,7 +249,7 @@ export function open(folder = "computer", from) {
   });
   main.addEventListener("dblclick", (e) => { const el = e.target.closest("[data-id]"); if (el) openItem(el.dataset.id); });
   // single tap opens on touch, like the desktop
-  main.addEventListener("click", (e) => { if (e.pointerType === "touch") { const el = e.target.closest("[data-id]"); if (el) openItem(el.dataset.id); } });
+  main.addEventListener("click", (e) => { if (e.pointerType === "touch" || phone()) { const el = e.target.closest("[data-id]"); if (el) openItem(el.dataset.id); } });
   main.addEventListener("contextmenu", (e) => {
     e.preventDefault();
     const el = e.target.closest("[data-id]");

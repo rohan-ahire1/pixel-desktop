@@ -1,5 +1,5 @@
 // Tunes: a chiptune player. Three original tracks, sequenced live through Web Audio. Rohan dances while it plays.
-import { h, bus, store, onTick, reduce, announce } from "../core.js";
+import { h, bus, store, onTick, reduce, announce, phone } from "../core.js";
 import { iconState } from "../px.js";
 import { openWindow, msgbox } from "../wm.js";
 import { audio, output } from "../sound.js";
@@ -164,7 +164,7 @@ export function open(arg, from) {
     const list = h("ul", { class: "plist", role: "listbox", tabindex: "0", "aria-label": "Playlist" });
     const items = TRACKS.map((T, i) => {
       const li = h("li", { role: "option", id: "tn-" + i }, h("span", {}, `${i + 1}. ${T.title}`), h("span", { class: "d" }, fmt(T.len)));
-      li.addEventListener("click", () => { focusI = i; sync(); });
+      li.addEventListener("click", () => { focusI = i; sync(); if (phone()) select(i, true); });
       li.addEventListener("dblclick", () => select(i, true));
       list.append(li); return li;
     });
