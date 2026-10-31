@@ -122,6 +122,7 @@ export function build(o) {
     else if (p === "wave") { down(-1); arm(24, sh, f % 2 ? 29 : 28, f % 2 ? 15 : 13, 2); }
     else if (p === "point") { down(-1); arm(24, sh, 31, sh, 2); grect(33, sh, 1, 1, "S"); }
     else if (p === "pointUp") { down(-1); arm(24, sh, 28, 13, 2); grect(28, 11, 1, 2, "S"); }
+    else if (p === "sipUp") { down(-1); arm(24, sh, 26, 28, 2); arm(26, 28, 21, 22, 0); }
     else if (p === "thumbs") { down(-1); arm(24, sh, 27, 27, 2); arm(27, 27, 27, 22, 0); grect(27, 20, 1, 2, "S"); }
     else if (p === "facepalm") { down(-1); arm(24, sh, 22, 18, 2); }
     else if (p === "cover") { arm(10, sh, 12, 17, 2); arm(24, sh, 22, 17, 2); }

@@ -24,7 +24,7 @@ export function unlock() {
 for (const ev of ["pointerdown", "keydown"]) addEventListener(ev, unlock, { capture: true, passive: true });
 bus.on("settings", (p) => { if (master && ("sound" in p || "volume" in p)) master.gain.setTargetAtTime(level(), ac.currentTime, 0.02); });
 
-function tone(f, d, o = {}) {
+export function tone(f, d, o = {}) {
   const t0 = ac.currentTime + (o.at || 0);
   const osc = ac.createOscillator(), g = ac.createGain();
   osc.type = o.type || "square";
@@ -37,7 +37,7 @@ function tone(f, d, o = {}) {
   osc.connect(g); g.connect(o.dest || master);
   osc.start(t0); osc.stop(t0 + a + d + 0.05);
 }
-function noise(d, o = {}) {
+export function noise(d, o = {}) {
   if (!noiseBuf) {
     noiseBuf = ac.createBuffer(1, ac.sampleRate, ac.sampleRate);
     const ch = noiseBuf.getChannelData(0);
@@ -54,7 +54,7 @@ function noise(d, o = {}) {
   src.connect(f); f.connect(g); g.connect(master);
   src.start(t0, Math.random() * 0.5); src.stop(t0 + d + 0.05);
 }
-const NOTE = (n) => 440 * 2 ** ((n - 69) / 12);
+export const NOTE = (n) => 440 * 2 ** ((n - 69) / 12);
 
 const SFX = {
   startup() {
