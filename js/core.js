@@ -2,7 +2,8 @@
 export const $ = (s, r = document) => r.querySelector(s);
 export const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 export const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-export const small = () => matchMedia("(max-width: 760px)").matches;
+export const phone = () => document.body.classList.contains("phone");
+export const small = () => phone() || matchMedia("(max-width: 760px)").matches;
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const rand = (a, b) => a + Math.random() * (b - a);
 export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];

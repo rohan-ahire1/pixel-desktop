@@ -1,5 +1,5 @@
 // Window manager: open, focus, drag, snap, resize, minimize, maximize, modal dialogs and message boxes.
-import { h, $, bus, store, small, reduce, clamp, uid } from "./core.js";
+import { h, $, bus, store, small, phone, reduce, clamp, uid } from "./core.js";
 import { icon } from "./px.js";
 import { sfx } from "./sound.js";
 import { openMenu, menubar } from "./menu.js";
@@ -103,7 +103,8 @@ export function openWindow(o) {
     activeId = id;
     for (const x of wins.values()) x.el.classList.toggle("active", x === w);
     if (moveFocus && !el.contains(document.activeElement)) {
-      const t = el.querySelector("[autofocus]") || body.querySelector("input:not([type=hidden]):not([disabled]), textarea, [data-focus]") || el;
+      // phones: never pop the keyboard up unasked, the person taps a field when they want it
+      const t = el.querySelector("[autofocus]") || (!phone() && body.querySelector("input:not([type=hidden]):not([disabled]), textarea, [data-focus]")) || el;
       t.focus({ preventScroll: true });
     }
     bus.emit("win:focus", w);
@@ -310,7 +311,8 @@ export function openWindow(o) {
     o.modal.el.append(bl);
   }
   const from = rectOf(o.from);
-  const show = () => { el.style.visibility = ""; if (!from && !reduce) { el.classList.add("opening"); setTimeout(() => el.classList.remove("opening"), 200); } };
+  // a window can't take focus while hidden for the zoom, so a window opened from an icon takes it here
+  const show = () => { el.style.visibility = ""; if (from && activeId === id) w.focus(); if (!from && !reduce) { el.classList.add("opening"); setTimeout(() => el.classList.remove("opening"), 200); } };
   if (from) zoom(from, el.getBoundingClientRect(), show); else show();
   if (o.maximized && !small()) w.toggleMax(false);
   if (!dialog) sfx("open");
