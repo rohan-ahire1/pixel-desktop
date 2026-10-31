@@ -37,7 +37,7 @@ N.readme.text = README;
 export const TYPE_NAMES = { folder: "File folder", bin: "Recycle Bin", app: "Program", project: "Project", doc: "Text document", pic: "Bitmap image" };
 export const DESKTOP_DEFAULT = [
   ["welcome", "computer", "projects", "readme", "mail", "bin"],
-  ["flaggo", "coachmate", "multibagger"],
+  ["recoup", "pointer", "scoutline", "multibagger", "flaggo", "coachmate"],
   ["terminal", "paint", "mines", "doom", "tunes"],
 ];
 const SHORTCUTS = new Set([...PROJECTS.map((p) => p.id), "terminal", "paint", "mines", "doom", "tunes", "mail", "notepad", "calc", "browser"]);

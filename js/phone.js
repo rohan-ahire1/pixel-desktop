@@ -68,7 +68,7 @@ const link = (label, href, ic) => h("a", { class: "btn sm p-link", href, target:
 
 const hero = h("section", { class: "p-hero" },
   h("div", { class: "p-hero-top" }, meBtn,
-    h("div", {}, h("h1", {}, "Rohan Ahire"), h("p", {}, "I build trading systems, games and AI tools. End to end, solo."))),
+    h("div", {}, h("h1", {}, "Rohan Ahire"), h("p", {}, "Full-stack engineer at Pattern. I build SaaS products, data pipelines and AI tools."))),
   h("button", { type: "button", class: "p-now", "aria-label": "What I'm working on now, tap for more", onclick: nextNow }, h("b", {}, "NOW"), now, h("i", { "aria-hidden": "true" }, "›")),
   h("div", { class: "p-links" }, link("Email", "mailto:" + EMAIL, "mail"), link("GitHub", LINKS.github, "web"), link("LinkedIn", LINKS.linkedin, "web")));
 

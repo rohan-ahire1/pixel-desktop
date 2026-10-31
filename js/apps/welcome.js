@@ -10,18 +10,18 @@ import { sfx } from "../sound.js";
 
 const LINES = ["ROHAN", "AHIRE."];
 // what a recruiter should get in ten seconds; the numbers are from the résumé
-const ROLE = "Full-stack engineer · Mumbai · Open to remote";
-const SUMMARY = "Software Engineer II at Pattern. Three years shipping SaaS in TypeScript, React, Node and Python, from the first commit to production.";
+const ROLE = "Full-stack engineer · Mumbai · Open to remote (US/EU)";
+const SUMMARY = "Software Engineer II at Pattern. Three years shipping SaaS in TypeScript, React, Node and Python, across billing and payments, creator commerce, data pipelines and AI tooling.";
 const PROOF = [
   ["67,000+", "ambassadors paid through the commission system I built"],
   ["48+", "brands billed by the billing and payments system I designed"],
   ["60s → 0.5s", "query time, after I reworked the indexes"],
 ];
-const FEATURED = ["flaggo", "coachmate", "multibagger"];
+const FEATURED = ["recoup", "pointer", "multibagger"];
 const RESUME = "resume.pdf";
 const TIPS = [
   "Hi! I'm Rohan. Double-click any icon on the desktop to open it.",
-  "Every project icon opens a real project. No filler.",
+  "Every project icon opens a real project.",
   "Right-click almost anything: the desktop, icons, the taskbar, even me.",
   "Drag a window to the side of the screen to snap it to half. Drag it to the top to fill the screen.",
   "Drop a photo from your computer onto the desktop. It turns into pixel art.",

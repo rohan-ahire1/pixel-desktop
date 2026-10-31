@@ -17,14 +17,16 @@ const proj = (id) => PROJECTS.find((p) => p.id === id);
 const sign = "\n\nRohan";
 const MAILS = {
   welcome: () => ({ subject: "Welcome to my desktop",
-    body: `Hey,\n\nThanks for stopping by. This whole site is a tiny operating system I built from scratch. Every icon is drawn in code and every sound is made by your browser.\n\nThe short version of me: ${ABOUT}\n\nThe good stuff is in the Projects folder. Flaggo and Coachmate run right here, in their own windows.\n\nI'll drop you a note now and then while you look around. I promise not to spam.${sign}`,
+    body: `Hey,\n\nThanks for stopping by. This whole site is a tiny operating system I built from scratch. Every icon is drawn in code and every sound is made by your browser.\n\nThe short version of me: ${ABOUT}\n\nThe good stuff is in the Projects folder. Recoup, Pointer, Flaggo and Coachmate run right here, in their own windows.\n\nI'll drop you a note now and then while you look around. I promise not to spam.${sign}`,
     actions: [["Open Projects", "projects"], ["Take the tour", "tour"]] }),
+  "live:recoup": () => ({ subject: "You found Recoup", body: `${proj("recoup").blurb}\n\nEverything in it is sample data, so click whatever you like.\n\nBuilt with ${proj("recoup").stack}.${sign}`, actions: [["Open Recoup", "open:recoup"]] }),
+  "live:pointer": () => ({ subject: "You found Pointer", body: `${proj("pointer").blurb}\n\nPick a pattern and step through it.\n\nBuilt with ${proj("pointer").stack}.${sign}`, actions: [["Open Pointer", "open:pointer"]] }),
   "live:flaggo": () => ({ subject: "You found Flaggo", body: `${proj("flaggo").blurb}\n\nStart with the daily challenge.\n\nBuilt with ${proj("flaggo").stack}.${sign}`, actions: [["Open Flaggo", "open:flaggo"]] }),
   "live:coachmate": () => ({ subject: "About Coachmate", body: `${proj("coachmate").blurb}\n\nGot a Chess.com username? Type it in and see what it finds.\n\nBuilt with ${proj("coachmate").stack}.${sign}`, actions: [["Open Coachmate", "open:coachmate"]] }),
   notes: (id) => { const p = proj(id); return p && { subject: `Notes on ${p.name}`, body: `Since you opened ${p.name}, here's the longer story.\n\n${p.blurb}\n\nStack: ${p.stack}\nStatus: ${p.status}, ${p.year}\n\nHappy to walk you through the code. Just reply.${sign}`, actions: [["Reply", "reply"]] }; },
   tunes: () => ({ subject: "The music is homemade", body: `Every note in Tunes is played live by your browser. No audio files, just oscillators and a bit of maths.\n\nTurn it up. I'll dance.${sign}` }),
   mines: () => ({ subject: "Minesweeper champion", body: `You actually beat Minesweeper. Most people click until it explodes.\n\nIf you're that careful with code too, we should talk.${sign}`, actions: [["Reply", "reply"]] }),
-  collab: () => ({ subject: "Want to work together?", body: `You've clicked around quite a bit, so here's the direct pitch.\n\nI take ideas from the first commit to something people can use: games, tools, trading systems, apps. If you have a project, a role, or just a question, hit Reply. It goes straight to my real inbox.${sign}`, actions: [["Reply", "reply"]] }),
+  collab: () => ({ subject: "Want to work together?", body: `You've clicked around quite a bit, so here's the direct pitch.\n\nI take ideas from the first commit to something people can use: SaaS products, data pipelines, AI tools and games. If you have a project, a role, or just a question, hit Reply. It goes straight to my real inbox.${sign}`, actions: [["Reply", "reply"]] }),
   "tip:right": () => ({ subject: "Psst: right-click everything", body: `Almost everything here has a right-click menu: the desktop, the icons, window title bars, the taskbar, even me.\n\nOn a phone, press and hold instead.${sign}` }),
   "tip:now": () => ({ subject: "What I'm up to", body: `A quick update from my side:\n\n${NOW.map((n) => "  - " + n).join("\n")}\n\nAsk me about any of it.${sign}`, actions: [["Reply", "reply"]] }),
   "tip:terminal": () => ({ subject: "Try the terminal", body: `Open Terminal and type help to see what it can do. Type rohan to boss me around.\n\nI won't judge your typos. Much.${sign}`, actions: [["Open Terminal", "terminal"]] }),
@@ -112,7 +114,7 @@ export function initInbox() {
   bus.on("win:open", (w) => {
     const id = w.id || "";
     if (!["welcome", "inbox"].includes(id)) apps.add(w.app || id);
-    if (id === "browser:flaggo" || id === "browser:coachmate") setTimeout(() => send("live:" + id.slice(8)), 20000);
+    if (["browser:recoup", "browser:pointer", "browser:flaggo", "browser:coachmate"].includes(id)) setTimeout(() => send("live:" + id.slice(8)), 20000);
     else if (id.startsWith("project:")) setTimeout(() => send("notes", id.slice(8)), 12000);
     if (apps.size >= 4 && !["welcome", "inbox"].includes(id)) setTimeout(() => send("collab"), 25000);
   });

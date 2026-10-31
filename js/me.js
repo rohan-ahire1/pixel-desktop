@@ -126,6 +126,8 @@ const LINES = {
   computer: { pose: "point", say: "All of this runs in your browser. Poke around.", once: 1 },
   readme: { pose: "wave", say: "That's me. Hi again.", once: 1 },
   mail: { pose: "thumbs", say: "Say hi. It goes straight to my inbox.", once: 1 },
+  "app:recoup": { pose: "point", say: "It's all sample data, so click whatever you like.", once: 1 },
+  "app:pointer": { pose: "thumbs", say: "Pick a pattern and step through it.", once: 1 },
   "app:flaggo": { pose: "thumbs", say: "Flaggo! Try the daily challenge.", once: 1 },
   "app:coachmate": { pose: "point", say: "Got a Chess.com username? Type it in.", once: 1 },
   taskman: { pose: "wave", say: "Looking for me? I'm rohan.exe. Please don't.", once: 1 },
@@ -191,7 +193,7 @@ function keyFor(w) {
 /* ---------- tour ---------- */
 const TOUR = [
   ["computer", "My Computer. Specs, drives and the Control Panel."],
-  ["projects", "Projects. Everything I've built. Flaggo and Coachmate run right here."],
+  ["projects", "Projects. Everything I've built. Recoup, Pointer and Flaggo run right here."],
   ["terminal", "The terminal. Type help, or rohan to boss me around."],
   ["mail", "Mail. Write to me here. I'll send you notes too."],
 ];

@@ -1,22 +1,31 @@
 // Real content: projects, bio, links. Everything else in the OS is chrome around this.
 export const PROJECTS = [
+  { id: "recoup", name: "Recoup", kind: "Collections SaaS", sum: "Gets small unpaid invoices paid.", icon: "recoup",
+    year: "2026", status: "Live demo", stack: "Next.js 15, TypeScript, SQLite, Stripe, Twilio, Claude API", live: "https://recoup.rohanahire.com/explore",
+    blurb: "Collections software for small unpaid invoices. The reminder engine is a pure function of case, history and clock, and it stops on payment, reply, promise or dispute. Customers pay through Stripe Checkout, in full or on a plan. SMS runs on Twilio with signed webhooks, and Claude reads the replies. It runs as a demo with sample data and has no real customers yet." },
+  { id: "pointer", name: "Pointer", kind: "Interview course", sum: "Coding-interview patterns you can watch and run.", icon: "pointer",
+    year: "2026", status: "Live", stack: "Next.js 16, React 19, TypeScript, Remotion, Vitest", live: "https://pointer.rohanahire.com",
+    blurb: "A free course on the 15 patterns behind most coding-interview problems. Each lesson has a one-minute animated explainer made in Remotion and a visualizer that steps through the real algorithm, line by line. It has ⌘K search, saves progress on your device and works on a phone." },
+  { id: "scoutline", name: "Scoutline", kind: "Lead research engine", sum: "Finds and scores sales leads.", icon: "scoutline",
+    year: "2026", status: "Private", stack: "Node.js, Express, React, SQLite, OpenAI, headless Chrome",
+    blurb: "A research engine that discovers local businesses, crawls their sites for verified emails, and scores each lead with a rule engine plus an LLM review of a screenshot of the site. A web service and a worker share a job queue with retries and timeouts, and discovery runs every night on its own. It's a private tool, so there's no public link." },
+  { id: "multibagger", name: "Multibagger", kind: "Stock research platform", sum: "Backtests NSE strategies, then paper-trades the survivors.", icon: "chart",
+    year: "2026", status: "Active", stack: "Python, DuckDB, Parquet, systemd",
+    blurb: "A research platform for Indian stocks, built on versioned NSE data. Strategies go through walk-forward and holdout tests, and the ones that pass run as daily paper-trading books on real prices." },
   { id: "flaggo", name: "Flaggo", kind: "Geography game", sum: "Learn every country, one round at a time.", icon: "globe",
     year: "2025–26", status: "Active", stack: "Vite, React, TypeScript, Supabase", live: "https://flaggo.rohanahire.com",
     blurb: "A geography game with flag, capital, map, arcade and daily-challenge modes. Spaced repetition picks what you see next, so the countries you miss keep coming back until they stick. Works offline." },
   { id: "coachmate", name: "Coachmate", kind: "Chess coach", sum: "Finds the mistakes you keep making.", icon: "chess",
     year: "2026", status: "Shipped", stack: "Next.js, Stockfish, chess.js, OpenRouter", live: "https://coachmate.rohanahire.com",
     blurb: "Type a Chess.com username and get a plain-English report on the mistakes you repeat. Then drill those exact positions, or play a bot tuned to your level. Stockfish runs in the browser, so your games stay on your device." },
-  { id: "multibagger", name: "Multibagger", kind: "Stock research platform", sum: "Backtests NSE strategies, then paper-trades the survivors.", icon: "chart",
-    year: "2026", status: "Active", stack: "Python, DuckDB, Parquet, systemd",
-    blurb: "A research platform for Indian stocks. It backtests strategies on versioned NSE price data, with walk-forward and holdout tests to throw out anything that only worked by luck. The few that survive run every evening as paper-trading books on a server, so I can watch them on real prices before any real money goes in." },
 ];
 
-export const ABOUT = "I'm an engineer who takes ideas from the first commit to something people can use. Right now that means a research platform for Indian stocks, a geography game with daily challenges, and a chess coach that reads your games. Small tools, done properly.";
-export const NOW = ["Shipping Flaggo daily challenges", "Paper-trading Multibagger's momentum books", "Coachmate bot difficulty modes", "Exploring WASM engines"];
-export const LINKS = { github: "https://github.com/rohan-ahire1", linkedin: "https://linkedin.com/in/rohanahire" };
+export const ABOUT = "I'm a full-stack engineer at Pattern with three years of shipping SaaS in TypeScript, React, Node and Python. I've built billing and payments for 48+ brands and a commission system for 67,000+ ambassadors. Outside work I take my own products from the first commit to production.";
+export const NOW = ["Building livestream analytics at Pattern", "Adding lessons to Pointer", "Running Multibagger paper books", "Open to remote roles, US / EU"];
+export const LINKS = { github: "https://github.com/rohan-ahire1", linkedin: "https://linkedin.com/in/rohan-ahire1" };
 
 export const README = `ROHAN AHIRE
-Builder · India · Remote
+Full-stack engineer · Mumbai · Open to remote (US/EU)
 ================================
 
 ${ABOUT}

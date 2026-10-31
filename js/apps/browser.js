@@ -100,7 +100,7 @@ export function open(arg, from) {
     const counter = h("span", { style: { fontFamily: "var(--display)", background: "#000", color: "#ff3b3b", padding: "1px 6px", letterSpacing: ".15em" } }, String(visits).padStart(6, "0"));
     return h("div", { class: "home" },
       h("h1", {}, "Rohan's Home Page"),
-      h("p", { style: { margin: 0 } }, "Builder of trading systems, games and AI tools. Welcome, traveller!"),
+      h("p", { style: { margin: 0 } }, "Full-stack engineer. I build SaaS products, data pipelines and AI tools. Welcome, traveller!"),
       h("div", { class: "marq", "aria-hidden": "true" }, h("span", {}, NOW.map((n) => `★ ${n}`).join("     ") + "     ★ Thanks for stopping by!")),
       h("h2", {}, "My projects"),
       h("ul", {}, ...PROJECTS.map((p) => h("li", {}, icon(p.icon, { size: 16, scale: 1, still: true }),
