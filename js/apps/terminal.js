@@ -1,5 +1,5 @@
 // Terminal: a small command line over the pretend file system, with history, tab completion and a few toys.
-import { h, bus, store, settings, setSettings, EMAIL, fmtUptime, bootTime, sleep, reduce } from "../core.js";
+import { h, bus, store, settings, setSettings, EMAIL, fmtUptime, bootTime, sleep, reduce, phone } from "../core.js";
 import { openWindow, list as winList } from "../wm.js";
 import { sfx } from "../sound.js";
 import * as fs from "../fs.js";
@@ -23,7 +23,7 @@ const FORTUNES = [
 export function open(arg, from) {
   const out = h("div", { role: "log", "aria-live": "polite", "aria-label": "Terminal output" });
   const prompt = h("span", { class: "p1" });
-  const input = h("input", { "aria-label": "Command", autocomplete: "off", autocapitalize: "off", spellcheck: "false", enterkeyhint: "go" });
+  const input = h("input", { "aria-label": "Command", autocomplete: "off", autocapitalize: "off", autocorrect: "off", spellcheck: "false", enterkeyhint: "go", placeholder: phone() ? "tap here to type" : null });
   const inrow = h("div", { class: "inrow" }, prompt, input);
   const term = h("div", { class: "term" }, out, inrow);
   let cwd = "computer", busy = false, abort = false;
@@ -281,7 +281,8 @@ export function open(arg, from) {
   });
   // Ctrl+C while a command runs
   w.el.addEventListener("keydown", (e) => { if (busy && e.ctrlKey && (e.key === "c" || e.key === "C")) { abort = true; line("^C"); } });
-  term.addEventListener("pointerup", () => { if (!String(getSelection()) && !busy) input.focus({ preventScroll: true }); });
+  // on click, not pointerup: after a tap the browser's mousedown would move focus straight back to the window
+  term.addEventListener("click", () => { if (!String(getSelection()) && !busy) input.focus({ preventScroll: true }); });
 
   const col = store.get("termColor", "");
   if (col && col !== "default") C.color.f([col]);
@@ -289,7 +290,7 @@ export function open(arg, from) {
   line(ver);
   line(span("dim", "Type help to see commands. Try neofetch, projects or pixel."));
   line("");
-  setTimeout(() => input.focus(), 0);
+  if (!phone()) setTimeout(() => input.focus(), 0);
   if (typeof arg === "string" && arg) exec(arg);
   return w;
 }
