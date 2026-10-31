@@ -1,0 +1,18 @@
+{
+  "kit": "1.2.0",
+  "branch": "main",
+  "node": "22",
+  "setup": [],
+  "gates": [
+    { "name": "syntax", "run": "node scripts/check-syntax.mjs" },
+    { "name": "film-smoke", "run": "node scripts/film-smoke.mjs" },
+    { "name": "film-browser", "run": "node scripts/film-browser.mjs" }
+  ],
+  "app": {
+    "start": "python3 -m http.server $PORT --bind 127.0.0.1",
+    "routes": ["/", "/phone.html", "/privacy.html", "/404.html"],
+    "ignore": ["cloudflareinsights", "Failed to load resource: net::ERR_FAILED"]
+  },
+  "protect": [],
+  "worker": { "tools": [] }
+}

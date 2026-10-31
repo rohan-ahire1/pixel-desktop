@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node .factory/gates.mjs:*)",
+      "Bash(node .factory/verify.mjs:*)"
+    ],
+    "deny": [
+      "Bash(git push -f:*)",
+      "Bash(git push --force:*)"
+    ]
+  }
+}
