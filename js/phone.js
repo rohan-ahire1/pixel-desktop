@@ -32,7 +32,12 @@ tick(); setInterval(tick, 20000);
 function tile(id) {
   const n = fs.node(id);
   const b = h("button", { type: "button", class: "p-app", "aria-label": n.name }, icon(n.icon, { size: 32, scale: 2 }), h("span", { class: "lbl" }, n.name));
-  b.addEventListener("click", () => { b.classList.remove("hop"); void b.offsetWidth; b.classList.add("hop"); openNode(id, b); });
+  b.addEventListener("click", () => {
+    b.classList.remove("hop"); void b.offsetWidth; b.classList.add("hop");
+    // Terminal and Paint open a new window each time, so a tile brings back the one tucked away
+    const away = (id === "terminal" || id === "paint") && winList().find((w) => w.app === id && w.min);
+    if (away) away.restore(); else openNode(id, b);
+  });
   return b;
 }
 
@@ -70,7 +75,7 @@ const hero = h("section", { class: "p-hero" },
   h("div", { class: "p-hero-top" }, meBtn,
     h("div", {}, h("h1", {}, "Rohan Ahire"), h("p", {}, "Full-stack engineer at Pattern. I build SaaS products, data pipelines and AI tools."))),
   h("button", { type: "button", class: "p-now", "aria-label": "What I'm working on now, tap for more", onclick: nextNow }, h("b", {}, "NOW"), now, h("i", { "aria-hidden": "true" }, "›")),
-  h("div", { class: "p-links" }, link("Email", "mailto:" + EMAIL, "mail"), link("GitHub", LINKS.github, "web"), link("LinkedIn", LINKS.linkedin, "web")));
+  h("div", { class: "p-links" }, link("Email", "mailto:" + EMAIL, "mail"), link("GitHub", LINKS.github, "web"), link("LinkedIn", LINKS.linkedin, "web"), link("Resume", "resume.pdf", "txt")));
 
 const section = (title, ids) => [h("h2", { class: "p-sec" }, title), h("div", { class: "p-grid" }, ids.map(tile))];
 const home = h("div", { class: "p-home" }, hero,
@@ -85,9 +90,41 @@ const dockBtn = (label, ic, fn) => {
   b.addEventListener("click", () => fn(b));
   return b;
 };
-const homeBtn = dockBtn("Home", "logo", () => { if (winList().some((w) => !w.min)) minimizeAll(); else home.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" }); });
+const goHome = () => {
+  // a message box can't be tucked away, so it closes and its app goes behind it
+  winList().filter((w) => !w.min && (w.modal || w.o?.minimizable === false)).forEach((w) => w.close());
+  if (winList().some((w) => !w.min)) minimizeAll(); else home.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+};
+const homeBtn = dockBtn("Home", "logo", goHome);
 $(".p-dock").append(homeBtn,
   dockBtn("About", "txt", (b) => openNode("readme", b)),
   dockBtn("Mail", "mail", (b) => launch("mail", null, b)),
   dockBtn("Settings", "display", (b) => launch("settings", "background", b)));
 bus.on("wins", () => homeBtn.classList.toggle("on", winList().some((w) => !w.min)));
+
+/* ---------- Android back: an open app goes back to the home screen instead of leaving the site ---------- */
+let armed = false;
+bus.on("wins", () => { if (!armed && winList().some((w) => !w.min)) { armed = true; history.pushState(null, ""); } });
+addEventListener("popstate", () => {
+  armed = false;
+  if (winList().some((w) => !w.min)) goHome(); else history.back();
+});
+
+/* ---------- keyboard: keep the app above it, so the field being typed in stays on screen ---------- */
+const vv = window.visualViewport;
+if (vv) {
+  let open = false;
+  const fit = () => {
+    const kb = vv.scale < 1.05 && document.activeElement?.matches("input, textarea") ? innerHeight - vv.height - vv.offsetTop : 0;
+    const was = open;
+    open = kb > 100;
+    document.body.classList.toggle("kb", open);
+    document.documentElement.style.setProperty("--kb", (open ? kb : 0) + "px");
+    if (was && !open) scrollTo(0, 0); // iOS can leave the page nudged up after the keyboard goes
+  };
+  vv.addEventListener("resize", fit); vv.addEventListener("scroll", fit);
+  addEventListener("focusout", () => setTimeout(fit, 100));
+}
+
+// the address bar should say rohanahire.com, not /phone.html
+history.replaceState(null, "", "./");
