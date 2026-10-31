@@ -6,7 +6,7 @@ export const small = () => matchMedia("(max-width: 760px)").matches;
 export const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 export const rand = (a, b) => a + Math.random() * (b - a);
 export const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-export const EMAIL = "rohanahire1607@gmail.com";
+export const EMAIL = "ahirerohan3.14@gmail.com";
 export const TB = 48; // taskbar height, mirrors --tb in os.css (52 on phones; read tbH() for the live value)
 export const tbH = () => document.querySelector(".taskbar")?.offsetHeight || TB;
 export const bootTime = Date.now();

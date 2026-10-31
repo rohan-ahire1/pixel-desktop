@@ -28,9 +28,9 @@ WORK
 ${PROJECTS.map((p) => `  ${p.name.padEnd(13)}${p.kind} (${p.year}, ${p.status.toLowerCase()})`).join("\n")}
 
 CONTACT
-  Email     rohanahire1607@gmail.com
+  Email     ahirerohan3.14@gmail.com
   GitHub    github.com/rohan-ahire1
-  LinkedIn  linkedin.com/in/rohanahire
+  LinkedIn  linkedin.com/in/rohan-ahire1
 
 HOW TO USE THIS DESKTOP
   Double-click an icon to open it. Drag windows by the
