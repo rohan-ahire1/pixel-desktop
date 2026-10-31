@@ -206,11 +206,12 @@ export function open(arg, from) {
       field.addEventListener("focus", () => field.select());
       const goB = h("button", { type: "button", class: "btn", style: { minWidth: "0", padding: "2px 10px" }, onclick: () => nav(field.value) }, "Go");
       w.body.append(
-        h("div", { class: "toolbar", style: { borderTop: "0", boxShadow: "none", marginTop: "0" } }, back, fore, reloadB, homeB,
+        h("div", { class: "toolbar navbar", style: { borderTop: "0", boxShadow: "none", marginTop: "0" } }, back, fore, reloadB, homeB,
           h("div", { class: "addr" }, h("label", { style: { fontSize: "var(--fs-sm)" }, for: "nav-addr" }, "Address"), h("span", { class: "ai" }, fav, field), goB), aboutB, tabB),
         view);
       field.id = "nav-addr";
       w.el.append(w.statusbar(status, zone));
+      w.el.classList.toggle("proj", !!proj);
     },
   });
   if (w._built) return w;
