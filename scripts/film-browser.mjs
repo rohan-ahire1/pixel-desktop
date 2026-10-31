@@ -1,6 +1,6 @@
 // Drives the boot, the reel and the project clips in a real browser. Screenshots land in .factory/evidence/film/.
 import { createServer } from "node:http";
-import { mkdirSync, readFileSync, existsSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { createRequire } from "node:module";
 import { homedir } from "node:os";
 import { extname, join, normalize } from "node:path";
@@ -76,6 +76,87 @@ await test("first visit plays the boot and reaches a usable desktop", async () =
   await film(page).waitFor({ state: "detached", timeout: 6000 });
   await usable(page);
   await shot(page, "boot-4-desktop");
+});
+/* the film ends on the real desktop: stop the page's clock and compare the frames either side of each hand-over */
+const pixels = await browser.newPage();
+async function diff(a, b, name, box) {
+  const { share, changed, area, png } = await pixels.evaluate(async ([a, b, box]) => {
+    const load = async (s) => createImageBitmap(await (await fetch("data:image/png;base64," + s)).blob());
+    const read = (bmp) => { const c = new OffscreenCanvas(bmp.width, bmp.height).getContext("2d", { willReadFrequently: true }); c.drawImage(bmp, 0, 0); return c; };
+    const [x, y] = await Promise.all([load(a), load(b)]), A = read(x), B = read(y), { width: w, height: h } = x, r = box || { x: 0, y: 0, w, h };
+    const pa = A.getImageData(r.x, r.y, r.w, r.h), pb = B.getImageData(r.x, r.y, r.w, r.h), L = [1e9, 1e9, -1, -1];
+    let changed = 0;
+    for (let i = 0; i < pa.data.length; i += 4) {
+      const hit = Math.abs(pa.data[i] - pb.data[i]) > 16 || Math.abs(pa.data[i + 1] - pb.data[i + 1]) > 16 || Math.abs(pa.data[i + 2] - pb.data[i + 2]) > 16;
+      pb.data[i] = hit ? 255 : pb.data[i] * 0.3; pb.data[i + 1] = hit ? 0 : pb.data[i + 1] * 0.3; pb.data[i + 2] = hit ? 0 : pb.data[i + 2] * 0.3;
+      if (hit) { const px = (i / 4) % r.w, py = Math.floor(i / 4 / r.w); changed++; L[0] = Math.min(L[0], px + r.x); L[1] = Math.min(L[1], py + r.y); L[2] = Math.max(L[2], px + r.x); L[3] = Math.max(L[3], py + r.y); }
+    }
+    const out = new OffscreenCanvas(r.w, r.h), oc = out.getContext("2d");
+    oc.putImageData(pb, 0, 0);
+    const bytes = new Uint8Array(await (await out.convertToBlob()).arrayBuffer());
+    let bin = "";
+    for (let i = 0; i < bytes.length; i += 32768) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 32768));
+    return { changed, share: changed / (r.w * r.h), area: changed ? L : null, png: btoa(bin) };
+  }, [a.toString("base64"), b.toString("base64"), box]);
+  writeFileSync(join(out, name + ".png"), Buffer.from(png, "base64"));
+  return { share, changed, area };
+}
+async function seamless(name, viewport, saved) {
+  const page = await open({ viewport });
+  if (saved) await context.addInitScript((s) => localStorage.setItem("pxos-settings", JSON.stringify(s)), saved);
+  const T0 = new Date("2026-11-02T10:00:00").getTime();
+  await page.clock.install({ time: T0 });
+  await page.clock.pauseAt(T0 + 1000);
+  await page.goto(base + "/");
+  await film(page, "boot").waitFor({ timeout: 3000 });
+  const run = (ms) => page.clock.runFor(ms), still = () => page.screenshot();
+  const save = (buf, part) => writeFileSync(join(out, `match-${name}-${part}.png`), buf);
+  const rohan = () => page.evaluate(async () => { const m = await import("/js/me.js"); return { status: m.meStatus(), dock: m.meDock() }; });
+  for (let i = 0; i < 400 && !(await film(page, "boot").locator(".film-wash").count()); i++) await run(33);
+  expect(await film(page, "boot").locator(".film-wash").count(), "the wash never started");
+  await run(1600);
+  const { dock } = await rohan();
+  if (dock) {
+    let before, after;
+    for (let i = 0; i < 40; i++) { before = await still(); await run(33); if ((await rohan()).status !== "on the way") { after = await still(); break; } }
+    expect(after, "live Rohan never took over");
+    save(before, "handover-film"); save(after, "handover-live");
+    const feet = { x: dock.x, y: dock.y + 34 * dock.S, w: 36 * dock.S, h: 8 * dock.S };
+    const f = await diff(before, after, `match-${name}-handover-diff`, feet);
+    expect(f.changed === 0, `${name}: Rohan's feet moved ${f.changed}px at the hand-over, ${JSON.stringify(f.area)}`);
+  }
+  await run(1700);
+  let last, clear = false;
+  for (let i = 0; i < 60 && (await film(page).count()); i++) {
+    last = await still();
+    clear = await page.evaluate(() => { const ov = document.querySelector(".film"); return !!ov && [...ov.querySelectorAll("canvas")].every((c) => c.getContext("2d").getImageData(0, 0, c.width, c.height).data.every((v, j) => j % 4 !== 3 || v === 0)) && !ov.querySelector(".film-ui:not([hidden])")?.offsetParent; });
+    await run(33);
+  }
+  expect(!(await film(page).count()), "the film never ended");
+  expect(clear, `${name}: the last boot frame still paints over the desktop`);
+  const first = await still();
+  save(last, "last"); save(first, "desktop");
+  const d = await diff(last, first, `match-${name}-diff`);
+  expect(d.share <= 0.001, `${name}: ${d.changed}px (${(d.share * 100).toFixed(3)}%) changed at ${JSON.stringify(d.area)}`);
+  return `${name} ${d.changed}px${d.area ? " at " + d.area : ""}`;
+}
+for (const [name, viewport, saved] of [
+  ["1280", { width: 1280, height: 800 }],
+  ["1920", { width: 1920, height: 1080 }],
+  ["1366-other-scheme", { width: 1366, height: 768 }, { scheme: "plum", wallpaper: "sunset" }],
+  ["1280-no-rohan", { width: 1280, height: 800 }, { me: false }],
+  ["1280-no-welcome", { width: 1280, height: 800 }, { welcome: false }],
+]) await test(`the last boot frame matches the live desktop at ${name}`, async () => console.log("  " + (await seamless(name, viewport, saved))));
+await test("skipping after the landing leaves him standing on his spot", async () => {
+  const page = await open();
+  await page.goto(base + "/");
+  await film(page, "boot").locator(".film-wash").waitFor({ timeout: 9000 });
+  await page.waitForTimeout(1000);
+  await page.keyboard.press("Enter");
+  await film(page).waitFor({ state: "detached", timeout: 2000 });
+  const s = await page.evaluate(async () => ({ status: (await import("/js/me.js")).meStatus(), bar: document.querySelector(".taskbar").style.translate, hops: document.querySelectorAll('.win[style*="translate"], .dicon[style*="translate"]').length }));
+  expect(s.status !== "walking around" && !s.bar && !s.hops, JSON.stringify(s));
+  await usable(page);
 });
 await test("a key skips the boot", async () => {
   const page = await open();
