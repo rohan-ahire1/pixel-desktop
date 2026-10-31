@@ -114,7 +114,7 @@ export function open(tab, from) {
       h("label", { for: "lb-wall", style: { display: "block", marginBottom: "4px" } }, "Wallpaper"),
       Object.assign(lb, { id: "lb-wall" }),
       h("div", { class: "btnrow", style: { marginTop: "10px", justifyContent: "space-between" } },
-        h("span", { style: { fontSize: "13.5px", color: "var(--muted)", alignSelf: "center", maxWidth: "200px" } }, "Pictures turn into 16-colour pixel art."),
+        h("span", { style: { fontSize: "var(--fs-sm)", color: "var(--muted)", alignSelf: "center", maxWidth: "200px" } }, "Pictures turn into 16-colour pixel art."),
         h("span", { class: "btnrow" }, h("button", { type: "button", class: "btn sm", onclick: () => file.click() }, "Browse…"), h("button", { type: "button", class: "btn sm", onclick: () => launch("paint") }, "Paint one…"))),
       file);
     paint();
@@ -175,7 +175,7 @@ export function open(tab, from) {
     const on = h("input", { type: "checkbox", id: "snd-on" });
     on.checked = val("sound");
     const vol = h("input", { type: "range", min: "0", max: "100", id: "snd-vol", value: String(Math.round(val("volume") * 100)), style: { flex: 1 } });
-    const pct = h("span", { style: { width: "42px", textAlign: "right", fontFamily: "var(--mono)", fontSize: "13px" } }, vol.value + "%");
+    const pct = h("span", { style: { width: "42px", textAlign: "right", fontFamily: "var(--ui)", fontSize: "var(--fs-sm)" } }, vol.value + "%");
     // sound changes apply live so you can hear them; Cancel puts them back
     const was = { sound: settings.sound, volume: settings.volume };
     on.addEventListener("change", () => { setSettings({ sound: on.checked }); set({ sound: on.checked }); });
@@ -227,7 +227,7 @@ export function open(tab, from) {
       h("button", { type: "button", class: "btn sm", onclick: () => { meBreak(); draw(); } }, "Coffee break"));
     p.append(
       h("div", { class: "lbl-row", style: { marginBottom: "12px", alignItems: "flex-start" } }, icon("me", { size: 32, scale: 2 }),
-        h("div", {}, h("b", { style: { fontFamily: "var(--display)", fontSize: "18px" } }, "Pixel Rohan"), h("p", { style: { margin: "4px 0 0", fontSize: "15px", lineHeight: 1.35 } }, "That's me on the taskbar. Click to call me, drag to pick me up."))),
+        h("div", {}, h("b", { style: { fontFamily: "var(--display)", fontSize: "var(--fs-lg)" } }, "Pixel Rohan"), h("p", { style: { margin: "4px 0 0", fontSize: "var(--fs-md)", lineHeight: 1.35 } }, "That's me on the taskbar. Click to call me, drag to pick me up."))),
       h("fieldset", { class: "group" }, h("legend", {}, "What I've been up to"), grid),
       acts,
       h("fieldset", { class: "group", style: { marginTop: "12px", display: "grid", gap: "6px" } }, h("legend", {}, "Options"),

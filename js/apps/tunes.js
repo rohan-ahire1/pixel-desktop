@@ -177,7 +177,7 @@ export function open(arg, from) {
       h("div", { class: "lcd" }, tt, time, vis, meta, rep),
       seek,
       h("div", { class: "tctl" }, btn("prev", "Previous track", () => select(P.idx - 1, P.playing)), pp, btn("stop", "Stop", stop), btn("next", "Next track", () => select(P.idx + 1, P.playing)),
-        h("span", { "aria-hidden": "true", style: { marginLeft: "8px", fontSize: "13px" } }, "Vol"), vol),
+        h("span", { "aria-hidden": "true", style: { marginLeft: "8px", fontSize: "var(--fs-sm)" } }, "Vol"), vol),
       list));
 
     sync = () => {

@@ -386,7 +386,7 @@ function askShutdown() {
 async function standby() {
   const ov = h("div", { class: "overlay off", style: { background: "#000" }, tabindex: "-1" },
     h("div", {}, h("div", { class: "led", "aria-hidden": "true", style: { width: "10px", height: "10px", margin: "0 auto 18px", background: "#f5a623", animation: reduce ? "none" : "blink 2s steps(1) infinite" } }),
-      h("p", { style: { fontSize: "16px", color: "#6b7194", fontFamily: "var(--mono)" } }, "Stand by. Move the mouse or press a key to wake.")));
+      h("p", { style: { fontSize: "var(--fs-md)", color: "#6b7194", fontFamily: "var(--ui)" } }, "Stand by. Move the mouse or press a key to wake.")));
   document.body.append(ov);
   ov.focus();
   await sleep(700);
@@ -407,7 +407,7 @@ async function powerOff(mode, onReady) {
     ov.className = "overlay off";
     const again = h("button", { type: "button", class: "btn", style: { fontFamily: "var(--ui)" } }, "Start PixelOS again");
     ov.replaceChildren(h("div", {}, h("p", {}, "It's now safe to close this tab."), again,
-      h("p", { style: { fontSize: "14px", marginTop: "26px", fontFamily: "var(--mono)", color: "#8a6a2a" } }, "Thanks for visiting. rohanahire1607@gmail.com")));
+      h("p", { style: { fontSize: "var(--fs-sm)", marginTop: "26px", fontFamily: "var(--ui)", color: "#8a6a2a" } }, "Thanks for visiting. ahirerohan3.14@gmail.com")));
     again.focus();
     await new Promise((r) => again.addEventListener("click", r, { once: true }));
   }

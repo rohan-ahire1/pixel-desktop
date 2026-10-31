@@ -114,9 +114,9 @@ export function open(arg, from) {
       (() => { const q = h("input", { class: "field", type: "search", "aria-label": "Search this computer", placeholder: "Try: chess, python, trading" }); const f = h("form", { style: { display: "flex", gap: "6px", maxWidth: "420px" }, onsubmit: (e) => { e.preventDefault(); nav("pixel://search?q=" + encodeURIComponent(q.value)); } }, q, h("button", { type: "submit", class: "btn" }, "Search")); return f; })(),
       h("h2", {}, "PixelRing"),
       h("p", { style: { margin: 0 } }, link("« Prev", "pixel://ring/prev"), " | ", link("Random project", "pixel://ring/random"), " | ", link("Next »", "pixel://ring/next")),
-      h("p", { style: { marginTop: "22px" } }, "Visitor counter: ", counter, h("span", { style: { fontSize: "12px", color: "var(--chrome-dd)" } }, "  (your visits, on this computer)")),
+      h("p", { style: { marginTop: "22px" } }, "Visitor counter: ", counter, h("span", { style: { fontSize: "var(--fs-xs)", color: "var(--chrome-dd)" } }, "  (your visits, on this computer)")),
       h("div", { class: "badge" }, ...["Made with plain JS", "No cookies", "Best viewed at 1366×768", "Built solo"].map((s) => h("span", {}, s))),
-      h("p", { style: { fontSize: "12px", color: "var(--chrome-dd)", marginTop: "18px" } }, `Today is ${fmtDate(new Date())}.`));
+      h("p", { style: { fontSize: "var(--fs-xs)", color: "var(--chrome-dd)", marginTop: "18px" } }, `Today is ${fmtDate(new Date())}.`));
   }
   function search(q) {
     const res = fs.search(q);
@@ -126,7 +126,7 @@ export function open(arg, from) {
       h("form", { style: { display: "flex", gap: "6px", margin: "10px 0 18px" }, onsubmit: (e) => { e.preventDefault(); nav("pixel://search?q=" + encodeURIComponent(box.value)); } }, box, h("button", { type: "submit", class: "btn" }, "Search")),
       q ? h("p", { style: { color: "var(--chrome-dd)" } }, `${res.length} result${res.length === 1 ? "" : "s"} for “${q}” on this computer`) : null,
       res.length ? h("ul", { style: { gap: "14px" } }, ...res.slice(0, 30).map((n) => h("li", { style: { alignItems: "flex-start" } }, icon(n.icon, { size: 16, scale: 1, still: true }),
-        h("div", {}, link(n.name, "pixel://open/" + n.id), h("div", { style: { fontSize: "12.5px", color: "#1f6f4c" } }, fs.pathOf(n.id)), h("div", { style: { fontSize: "13px" } }, n.snip || n.desc || "")))))
+        h("div", {}, link(n.name, "pixel://open/" + n.id), h("div", { style: { fontSize: "var(--fs-xs)", color: "#1f6f4c" } }, fs.pathOf(n.id)), h("div", { style: { fontSize: "var(--fs-sm)" } }, n.snip || n.desc || "")))))
         : q ? h("p", {}, "No matches. Try a project name, a language, or a tool.") : null,
       q && !res.length ? h("p", {}, "Looking for the wider web? ", link(`Search “${q}” on DuckDuckGo`, "https://duckduckgo.com/?q=" + encodeURIComponent(q))) : null);
   }
@@ -207,7 +207,7 @@ export function open(arg, from) {
       const goB = h("button", { type: "button", class: "btn", style: { minWidth: "0", padding: "2px 10px" }, onclick: () => nav(field.value) }, "Go");
       w.body.append(
         h("div", { class: "toolbar", style: { borderTop: "0", boxShadow: "none", marginTop: "0" } }, back, fore, reloadB, homeB,
-          h("div", { class: "addr" }, h("label", { style: { fontSize: "13.5px" }, for: "nav-addr" }, "Address"), h("span", { class: "ai" }, fav, field), goB), aboutB, tabB),
+          h("div", { class: "addr" }, h("label", { style: { fontSize: "var(--fs-sm)" }, for: "nav-addr" }, "Address"), h("span", { class: "ai" }, fav, field), goB), aboutB, tabB),
         view);
       field.id = "nav-addr";
       w.el.append(w.statusbar(status, zone));

@@ -174,7 +174,7 @@ export function taskman(arg, from) {
     for (let y = 0; y < 60; y += 10) c.fillRect(0, y, 120, 1);
     c.fillStyle = color;
     hist.forEach((v, i) => { const hh = Math.max(1, Math.round(v * 58)); c.fillRect(i * 2, 60 - hh, 2, 1); c.globalAlpha = 0.35; c.fillRect(i * 2, 60 - hh + 1, 2, hh - 1); c.globalAlpha = 1; });
-    return h("fieldset", { class: "group", style: { flex: 1, minWidth: "180px" } }, h("legend", {}, label), cv, h("div", { style: { fontFamily: "var(--mono)", fontSize: "13px", marginTop: "6px" } }, val));
+    return h("fieldset", { class: "group", style: { flex: 1, minWidth: "180px" } }, h("legend", {}, label), cv, h("div", { style: { fontFamily: "var(--ui)", fontSize: "var(--fs-sm)", marginTop: "6px" } }, val));
   };
   function draw() {
     Object.entries({ apps: "Applications", procs: "Processes", perf: "Performance" }).forEach(([k]) => tabsEl.querySelector(`[data-t="${k}"]`).setAttribute("aria-selected", String(k === tab)));
@@ -289,10 +289,10 @@ export function properties(id, from) {
   const w = openWindow({
     id: "props:" + id, title: `${n.name} Properties`, icon: n.icon, app: "properties", dialog: true, w: 400, from, escClose: true, bodyClass: "dlg",
     build(w) {
-      const dl = h("dl", { class: "statgrid", style: { gridTemplateColumns: "96px 1fr", fontSize: "15px" } });
+      const dl = h("dl", { class: "statgrid", style: { gridTemplateColumns: "96px 1fr", fontSize: "var(--fs-md)" } });
       rows.forEach((r) => {
         if (r === null) dl.append(h("hr", { class: "etch", style: { gridColumn: "1 / -1", width: "100%" } }));
-        else if (r && r[1]) dl.append(h("dt", {}, r[0] + ":"), h("dd", { style: { margin: 0, fontFamily: r[0] === "Description" ? "var(--ui)" : "var(--mono)", fontSize: r[0] === "Description" ? "15px" : "13.5px", overflowWrap: "anywhere" } }, r[1]));
+        else if (r && r[1]) dl.append(h("dt", {}, r[0] + ":"), h("dd", { style: { margin: 0, fontFamily: "var(--ui)", fontSize: r[0] === "Description" ? "var(--fs-md)" : "var(--fs-sm)", overflowWrap: "anywhere" } }, r[1]));
       });
       const btns = h("div", { class: "btnrow" });
       if (n.type === "bin" && kids.length) btns.append(h("button", { type: "button", class: "btn", onclick: async () => { w.close(); const r = await msgbox({ title: "Empty Recycle Bin", icon: "question", text: `Delete ${kids.length === 1 ? "this item" : `these ${kids.length} items`} for good?`, buttons: ["Yes", "No"] }); if (r === 0) { fs.emptyBin(); sfx("crumple"); } } }, "Empty"));

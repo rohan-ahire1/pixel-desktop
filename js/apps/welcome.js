@@ -15,7 +15,7 @@ const SUMMARY = "Software Engineer II at Pattern. Three years shipping SaaS in T
 const PROOF = [
   ["67,000+", "ambassadors paid through the commission system I built"],
   ["48+", "brands billed by the billing and payments system I designed"],
-  ["60s → 0.5s", "query time, after I reworked the indexes"],
+  ["60s to 0.5s", "query time, after I added targeted indexes"],
 ];
 const FEATURED = ["recoup", "pointer", "multibagger"];
 const RESUME = "resume.pdf";

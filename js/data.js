@@ -33,7 +33,15 @@ ${ABOUT}
 NOW
 ${NOW.map((n) => "  - " + n).join("\n")}
 
-WORK
+AT PATTERN
+  Billing and payments for 48+ brands
+  Commissions for 67,000+ ambassadors across 50+ brands
+  Creator system for 1,200+ TikTok creators
+  AI error triage and MCP tools for the team
+  Query time cut from ~60s to 0.5s
+  5th of 60+ teams, Innovation Cup 2026
+
+PROJECTS
 ${PROJECTS.map((p) => `  ${p.name.padEnd(13)}${p.kind} (${p.year}, ${p.status.toLowerCase()})`).join("\n")}
 
 CONTACT

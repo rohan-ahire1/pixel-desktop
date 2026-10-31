@@ -176,7 +176,7 @@ function compose(arg, from) {
       h("span", { class: "tsep" }), inboxB),
     h("div", { class: "mail-card" }, icon("mail", { size: 32, scale: 1 }),
       h("div", { class: "who" }, h("b", {}, "Rohan Ahire"), h("span", {}, EMAIL)),
-      h("span", { style: { fontFamily: "var(--mono)", fontSize: "12.5px", color: "var(--muted)" } }, "Usually replies within a day.")),
+      h("span", { style: { fontFamily: "var(--ui)", fontSize: "var(--fs-xs)", color: "var(--muted)" } }, "Usually replies within a day.")),
     h("div", { class: "mfields" }, h("label", { for: "mail-to" }, "To:"), h("input", { class: "field", id: "mail-to", value: EMAIL, readonly: true }), h("label", { for: "mail-subj" }, "Subject:"), subj),
     body,
   );
