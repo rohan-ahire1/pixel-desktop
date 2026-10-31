@@ -1,6 +1,6 @@
 // Mail Rohan: an inbox for the notes Rohan sends while you look around, and a compose window that hands
 // your message to your own email app.
-import { h, EMAIL, bus, announce, fmtTime, small } from "../core.js";
+import { h, EMAIL, bus, announce, fmtTime, small, phone } from "../core.js";
 import { icon } from "../px.js";
 import { openWindow, msgbox } from "../wm.js";
 import { sfx } from "../sound.js";
@@ -76,7 +76,7 @@ function openInbox(readId, from) {
     w.body.classList.toggle("reading", !!m);
     if (!m) {
       pane.replaceChildren(h("div", { class: "mb-empty" }, icon("mail", { size: 32, scale: 2 }),
-        h("p", {}, messages().length ? "Pick a message to read it." : "No mail yet. Stick around and look at a few things. I'll write."),
+        h("p", {}, messages().length ? "Pick a message to read it." : phone() ? "No mail yet." : "No mail yet. Stick around and look at a few things. I'll write."),
         h("button", { type: "button", class: "btn", onclick: () => compose(null) }, "Write to Rohan")));
       return;
     }
@@ -127,7 +127,7 @@ function compose(arg, from) {
   let draft = {};
   try { draft = JSON.parse(sessionStorage.getItem(DRAFT) || "{}"); } catch (e) {}
   const subj = h("input", { class: "field", id: "mail-subj", value: subjectIn || draft.subject || "Hello via rohanahire.com" });
-  const body = h("textarea", { class: "field", id: "mail-body", rows: "8", placeholder: "Say hi, pitch an idea, or ask about a project." });
+  const body = h("textarea", { class: "field", id: "mail-body", rows: "8", placeholder: "Say hi, pitch an idea, or ask about a project.", autofocus: phone() ? null : true });
   body.value = draft.body || "";
   const keep = () => { try { sessionStorage.setItem(DRAFT, JSON.stringify({ subject: subj.value, body: body.value })); } catch (e) {} };
   subj.addEventListener("input", keep); body.addEventListener("input", keep);
@@ -171,8 +171,8 @@ function compose(arg, from) {
       h("button", { type: "button", class: "tbtn", onclick: send }, icon("mail", { size: 16, scale: 1, still: true }), "Send"),
       h("button", { type: "button", class: "tbtn", onclick: copy }, icon("txt", { size: 16, scale: 1, still: true }), "Copy"),
       h("span", { class: "tsep" }),
-      h("button", { type: "button", class: "tbtn", onclick: () => ext(LINKS.github) }, icon("web", { size: 16, scale: 1, still: true }), "GitHub"),
-      h("button", { type: "button", class: "tbtn", onclick: () => ext(LINKS.linkedin) }, icon("web", { size: 16, scale: 1, still: true }), "LinkedIn"),
+      h("button", { type: "button", class: "tbtn opt", onclick: () => ext(LINKS.github) }, icon("web", { size: 16, scale: 1, still: true }), "GitHub"),
+      h("button", { type: "button", class: "tbtn opt", onclick: () => ext(LINKS.linkedin) }, icon("web", { size: 16, scale: 1, still: true }), "LinkedIn"),
       h("span", { class: "tsep" }), inboxB),
     h("div", { class: "mail-card" }, icon("mail", { size: 32, scale: 1 }),
       h("div", { class: "who" }, h("b", {}, "Rohan Ahire"), h("span", {}, EMAIL)),
@@ -182,6 +182,6 @@ function compose(arg, from) {
   );
   w.el.append(w.statusbar(sMsg, h("span", { class: "fit" }, "Opens in your email app")));
   w.el.addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key === "Enter") { e.preventDefault(); send(); } });
-  setTimeout(() => (subjectIn ? body : body).focus(), 0);
+  if (!phone()) setTimeout(() => body.focus(), 0);
   return w;
 }
