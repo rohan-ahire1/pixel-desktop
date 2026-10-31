@@ -1,5 +1,5 @@
 // The welcome window: typed headline, the orbit, pixel me with tips, and the way into the work.
-import { h, onTick, reduce, settings, setSettings, EMAIL, announce } from "../core.js";
+import { h, onTick, reduce, settings, setSettings, EMAIL, announce, small } from "../core.js";
 import { K, px, shadow, disc, icon } from "../px.js";
 import { GW, GH, drawMe } from "../me-sprite.js";
 import { openWindow } from "../wm.js";
@@ -129,7 +129,8 @@ export function open(arg, from) {
         h("p", { class: "wl-eyebrow" }, ROLE),
         h("h1", { "aria-label": "Rohan Ahire" }, h("span", { "aria-hidden": "true" }, l1, h("br"), l2, h("span", { class: "caret" }))),
         h("p", { class: "lead" }, SUMMARY),
-        h("div", { class: "wl-acts" }, ext("Résumé", RESUME, "txt", "btn blue"), ext("Email", "mailto:" + EMAIL, "mail"), ext("GitHub", LINKS.github, "web"), ext("LinkedIn", LINKS.linkedin, "web"))),
+        h("div", { class: "wl-acts" }, ext("Résumé", RESUME, "txt", "btn blue"), ext("Email", "mailto:" + EMAIL, "mail"), ext("GitHub", LINKS.github, "web"), ext("LinkedIn", LINKS.linkedin, "web"),
+          !small() && h("button", { type: "button", class: "btn wl-link", onclick: (e) => launch("reel", null, e.currentTarget) }, icon("reel", { size: 16, scale: 1, still: true }), "Watch the reel"))),
       h("div", { class: "art" },
         h("div", { class: "doc-wrap" }, bubble, docBtn))),
     h("ul", { class: "wl-proof", "aria-label": "At work" }, ...PROOF.map(([n, t]) => h("li", {}, h("b", {}, n), h("span", {}, t)))),

@@ -19,7 +19,7 @@ function startItems() {
   const docs = fs.children("documents");
   return [
     { label: "Programs", icon: "folderApp", sub: () => [
-      ...["welcome", "notepad", "paint", "terminal", "tunes", "calc", "browser", "mail"].map(nodeItem),
+      ...["welcome", "reel", "notepad", "paint", "terminal", "tunes", "calc", "browser", "mail"].map(nodeItem),
       { label: "Games", icon: "folder", sub: [nodeItem("doom"), nodeItem("mines")] },
       { label: "Pixel Rohan", icon: "me", action: () => bus.emit("me:call") },
       { label: "System Tools", icon: "folder", sub: [nodeItem("taskman"), nodeItem("system"), nodeItem("find")] },

@@ -1,5 +1,5 @@
 // The pretend file system: fixed folders, the real projects, and the visitor's own notes and paintings.
-import { store, bus, uid } from "./core.js";
+import { store, bus, uid, small } from "./core.js";
 import { PROJECTS, README } from "./data.js";
 
 const N = {
@@ -7,12 +7,13 @@ const N = {
   desktop: { name: "Desktop", icon: "folder", type: "folder", parent: "computer", desc: "The icons on your desktop.", kids: () => desktopItems() },
   projects: { name: "Projects", icon: "folderStar", type: "folder", parent: "computer", desc: "Things I built end to end. Open one to read about it, or open it live.", kids: () => PROJECTS.map((p) => p.id) },
   documents: { name: "My Documents", icon: "folder", type: "folder", parent: "computer", desc: "Notes and paintings you save. They stay in this browser.", kids: () => ["readme", ...docsIn("documents")] },
-  programs: { name: "Programs", icon: "folderApp", type: "folder", parent: "computer", desc: "Every program on PixelOS.", kids: () => ["welcome", "terminal", "notepad", "paint", "mines", "tunes", "calc", "mail", "browser", "taskman", "find", "help"] },
+  programs: { name: "Programs", icon: "folderApp", type: "folder", parent: "computer", desc: "Every program on PixelOS.", kids: () => ["welcome", ...(small() ? [] : ["reel"]), "terminal", "notepad", "paint", "mines", "tunes", "calc", "mail", "browser", "taskman", "find", "help"] },
   games: { name: "Games", icon: "folderApp", type: "folder", parent: "computer", desc: "Minesweeper, and the real Doom from 1993.", kids: () => ["doom", "mines"] },
   control: { name: "Control Panel", icon: "folderGear", type: "folder", parent: "computer", desc: "Change how PixelOS looks, sounds and behaves.", kids: () => ["display", "soundcp", "mecp", "system"] },
   bin: { name: "Recycle Bin", icon: "recycle", type: "bin", parent: "computer", desc: "Things you deleted. Restore them, or empty the bin for good.", kids: () => binItems().map((b) => b.id) },
   readme: { name: "About me.txt", icon: "txt", type: "doc", app: "notepad", parent: "documents", readonly: true, desc: "Who I am, what I'm doing now and how to reach me." },
   welcome: { name: "Start here", icon: "logo", type: "app", app: "welcome", parent: "programs", desc: "Who I am, what I've done at work, and the quickest way to my résumé." },
+  reel: { name: "Watch the reel", icon: "reel", type: "app", app: "reel", parent: "programs", desc: "A 12-second film through my six projects." },
   terminal: { name: "Terminal", icon: "terminal", type: "app", app: "terminal", parent: "programs", desc: "A command line. Type help to see what it can do." },
   notepad: { name: "Notepad", icon: "note", type: "app", app: "notepad", parent: "programs", desc: "Write a note and save it to the desktop." },
   paint: { name: "Paint", icon: "paint", type: "app", app: "paint", parent: "programs", desc: "Draw pixel art. You can set it as your wallpaper." },
@@ -36,11 +37,11 @@ N.readme.text = README;
 
 export const TYPE_NAMES = { folder: "File folder", bin: "Recycle Bin", app: "Program", project: "Project", doc: "Text document", pic: "Bitmap image" };
 export const DESKTOP_DEFAULT = [
-  ["welcome", "computer", "projects", "readme", "mail", "bin"],
+  ["welcome", "reel", "computer", "projects", "readme", "mail", "bin"],
   ["recoup", "pointer", "scoutline", "multibagger", "flaggo", "coachmate"],
   ["terminal", "paint", "mines", "doom", "tunes"],
 ];
-const SHORTCUTS = new Set([...PROJECTS.map((p) => p.id), "terminal", "paint", "mines", "doom", "tunes", "mail", "notepad", "calc", "browser"]);
+const SHORTCUTS = new Set([...PROJECTS.map((p) => p.id), "reel", "terminal", "paint", "mines", "doom", "tunes", "mail", "notepad", "calc", "browser"]);
 export const UNDELETABLE = new Set(["computer", "bin"]);
 
 let docs = store.get("docs", []);

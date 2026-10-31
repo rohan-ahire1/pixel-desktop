@@ -493,14 +493,25 @@ const S = {
     px(c, 2, 6, b.level < 0.2 ? RED : G, n, 5);
     if (b.charging) { px(c, 7, 5, Y, 2, 3); px(c, 5, 7, Y, 4, 2); px(c, 6, 9, Y, 2, 2); px(c, 5, 10, Y, 2, 2); }
   },
+  reel: (c) => {
+    px(c, 1, 2, K, 14, 12); px(c, 2, 5, "#33405e", 12, 8);
+    [3, 7, 11].forEach((x) => px(c, x, 3, "#ffffff", 2, 1));
+    px(c, 6, 6, Y, 1, 6); px(c, 7, 7, Y, 1, 4); px(c, 8, 8, Y, 1, 2);
+  },
   warn: (c) => { for (let i = 0; i < 14; i++) { const hw = Math.round(i * 0.55); px(c, 8 - hw, 1 + i, i > 1 && i < 13 ? Y : K, 2 * hw + 1, 1); px(c, 8 - hw, 1 + i, K); px(c, 8 + hw, 1 + i, K); } px(c, 8, 5, K, 1, 5); px(c, 8, 11, K); },
 };
+
+function reel(c) {
+  px(c, 2, 4, K, 28, 25); px(c, 3, 11, "#33405e", 26, 17);
+  [4, 10, 16, 22].forEach((x) => px(c, x, 6, "#ffffff", 4, 4));
+  for (let i = 0; i < 7; i++) px(c, 13 + i, 13 + i, Y, 1, 13 - i * 2);
+}
 
 const BIG = {
   computer: (c, t) => computer(c, t, false), display: (c, t) => computer(c, t, true), system: (c, t) => computer(c, t, false),
   folder, folderStar, folderApp, folderGear, recycle, recycleFull, txt, note, terminal, paint, mines,
   tunes: (c, t) => tunes(c, t, iconState.playing), calc, mail, web, control, sound, cat: catface, help, me: (c, t) => meCrop(c, t || 0, 2, 2, 32, "stand"), doom,
-  globe, chess, chart, recoup, pointer, scoutline, extracta, wabin, momentum, logo: logoBig, find, run: runBig, power,
+  reel, globe, chess, chart, recoup, pointer, scoutline, extracta, wabin, momentum, logo: logoBig, find, run: runBig, power,
   info: msgIcon("info"), warn: msgIcon("warn"), error: msgIcon("error"), question: msgIcon("question"),
 };
 const SMALL_ALIAS = { folderStar: "folder", folderApp: "folder", folderGear: "folder", recycleFull: "recycle", question: "info" };

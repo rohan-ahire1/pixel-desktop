@@ -15,6 +15,7 @@ const LOAD = {
   mines: () => import("./mines.js"),
   dos: () => import("./dos.js"),
   tunes: () => import("./tunes.js"),
+  reel: () => import("./reel.js"),
   calc: () => import("./calc.js"),
   browser: () => import("./browser.js"),
   run: () => import("./tools.js").then((m) => ({ open: m.run })),
