@@ -279,6 +279,27 @@ function help(ctx) {
   px(ctx, 13, 8, W, 7, 2); px(ctx, 12, 9, W, 2, 2); px(ctx, 19, 9, W, 2, 4); px(ctx, 16, 13, W, 4, 2); px(ctx, 15, 14, W, 2, 3); px(ctx, 15, 19, W, 2, 2);
 }
 function logoBig(ctx) { shadow(ctx, 16, 30, 10); ctx.save(); ctx.scale(2, 2); drawMap(ctx, LOGO, 3, 2); ctx.restore(); }
+function recoup(ctx) {
+  shadow(ctx, 16, 30, 10);
+  px(ctx, 6, 2, K, 20, 26); px(ctx, 7, 3, W, 18, 24);
+  [[7, 12], [11, 12], [15, 7]].forEach(([y, w]) => px(ctx, 10, y, "#9a9caa", w, 2));
+  disc(ctx, 22, 23, 6, ["#f7c437", "#ffe58a", "#de9418"]);
+  px(ctx, 21, 20, "#9a6a10", 2, 6);
+}
+function pointer(ctx) {
+  shadow(ctx, 16, 30, 11);
+  px(ctx, 3, 3, K, 26, 25); px(ctx, 4, 4, "#2f5fd8", 24, 23);
+  for (let i = 0; i < 11; i++) { px(ctx, 11, 7 + i, K, i + 2, 1); if (i) px(ctx, 12, 7 + i, W, i, 1); }
+  px(ctx, 11, 18, K, 11, 1); px(ctx, 15, 18, K, 4, 6); px(ctx, 16, 18, W, 2, 5);
+}
+function scoutline(ctx) {
+  shadow(ctx, 16, 30, 11);
+  px(ctx, 3, 3, K, 26, 25); px(ctx, 4, 4, "#cfe8c4", 24, 23);
+  px(ctx, 4, 21, W, 24, 2); px(ctx, 22, 4, W, 2, 23);
+  for (let i = 0; i < 5; i++) px(ctx, 11 + i, 18 + i, "#922b2b", 10 - 2 * i, 1);
+  disc(ctx, 16, 12, 7, ["#d9534f", "#ff9b8f", "#922b2b"]);
+  px(ctx, 15, 11, W, 3, 3);
+}
 function find(ctx) {
   shadow(ctx, 15, 30, 10); page(ctx, W);
   [11, 14, 17].forEach((y) => px(ctx, 8, y, "#b9bfd8", 12, 1));
@@ -427,6 +448,21 @@ const S = {
     for (let y = 0; y < 4; y++) for (let x = 0; x < 4; x++) px(c, 1 + x * 3.5, 2 + y * 3.5, (x + y) % 2 ? "#585e86" : "#2b2f4a", 4, 4);
     drawMap(c, ["K.K.K.K", "KWKWKWK", "KWWWWWK", ".KWWWK.", ".KWWWK.", ".KWWWK.", "KKKKKKK", "KWWWWWK", "KKKKKKK"], 4, 4);
   },
+  recoup: (c) => {
+    px(c, 2, 0, K, 10, 14); px(c, 3, 1, W, 8, 12);
+    px(c, 4, 3, "#9a9caa", 6, 1); px(c, 4, 6, "#9a9caa", 6, 1);
+    px(c, 8, 8, K, 7, 7); px(c, 9, 9, "#f7c437", 5, 5); px(c, 11, 10, "#9a6a10", 1, 3);
+  },
+  pointer: (c) => {
+    px(c, 1, 1, K, 14, 14); px(c, 2, 2, "#2f5fd8", 12, 12);
+    for (let i = 0; i < 7; i++) px(c, 5, 3 + i, W, i + 1, 1);
+    px(c, 7, 10, W, 2, 3);
+  },
+  scoutline: (c) => {
+    px(c, 1, 1, K, 14, 14); px(c, 2, 2, "#cfe8c4", 12, 12);
+    px(c, 2, 11, W, 12, 1);
+    px(c, 5, 3, "#d9534f", 6, 5); px(c, 6, 8, "#d9534f", 4, 2); px(c, 7, 10, "#922b2b", 2, 2); px(c, 7, 5, W, 2, 1);
+  },
   chart: (c) => {
     px(c, 0, 1, K, 16, 14); px(c, 1, 2, "#121733", 14, 12);
     [[2, 8, 3, G], [5, 9, 3, "#ef4d5a"], [8, 6, 4, G], [11, 3, 5, G]].forEach(([x, y, hh, col]) => { px(c, x + 1, y - 1, col, 1, hh + 2); px(c, x, y, col, 3, hh); });
@@ -464,7 +500,7 @@ const BIG = {
   computer: (c, t) => computer(c, t, false), display: (c, t) => computer(c, t, true), system: (c, t) => computer(c, t, false),
   folder, folderStar, folderApp, folderGear, recycle, recycleFull, txt, note, terminal, paint, mines,
   tunes: (c, t) => tunes(c, t, iconState.playing), calc, mail, web, control, sound, cat: catface, help, me: (c, t) => meCrop(c, t || 0, 2, 2, 32, "stand"), doom,
-  globe, chess, chart, extracta, wabin, momentum, logo: logoBig, find, run: runBig, power,
+  globe, chess, chart, recoup, pointer, scoutline, extracta, wabin, momentum, logo: logoBig, find, run: runBig, power,
   info: msgIcon("info"), warn: msgIcon("warn"), error: msgIcon("error"), question: msgIcon("question"),
 };
 const SMALL_ALIAS = { folderStar: "folder", folderApp: "folder", folderGear: "folder", recycleFull: "recycle", question: "info" };
