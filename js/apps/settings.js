@@ -1,5 +1,5 @@
 // Control panel in one dialog: Background, Screen Saver, Appearance, Sound and Rohan. OK / Cancel / Apply.
-import { h, settings, setSettings, onTick, reduce } from "../core.js";
+import { h, settings, setSettings, onTick, reduce, phone } from "../core.js";
 import { icon } from "../px.js";
 import { openWindow, msgbox } from "../wm.js";
 import { sfx } from "../sound.js";
@@ -12,11 +12,11 @@ import { launch } from "./index.js";
 
 const TABS = [
   { id: "background", label: "Background" },
-  { id: "saver", label: "Screen Saver" },
+  { id: "saver", label: "Screen Saver", desktop: true },
   { id: "appearance", label: "Appearance" },
   { id: "sound", label: "Sound" },
-  { id: "me", label: "Rohan" },
-];
+  { id: "me", label: "Rohan", desktop: true },
+].filter((t) => !t.desktop || !phone()); // phones have no idle screen saver and no pixel me on a taskbar
 const SOUNDS = [["startup", "Start PixelOS"], ["open", "Open program"], ["close", "Close program"], ["min", "Minimize"], ["max", "Maximize"], ["menu", "Menu popup"], ["ding", "Default beep"], ["error", "Critical stop"], ["notify", "Notification"], ["crumple", "Empty Recycle Bin"], ["mail", "You've got mail"], ["shutdown", "Shut down"]];
 
 // A keyboard-friendly single-select list box.
@@ -56,7 +56,7 @@ export function open(tab, from) {
   let cur = tab;
 
   const w = openWindow({
-    id: "settings", title: "Display Properties", icon: "display", app: "settings", arg: tab, dialog: true, w: 540, from, bodyClass: "dlg",
+    id: "settings", title: "Display Properties", icon: "display", app: "settings", arg: tab, dialog: !phone(), w: 540, from, bodyClass: "dlg",
     onReopen: (w) => tab && w._show && w._show(tab),
     escClose: true,
   });
@@ -64,7 +64,7 @@ export function open(tab, from) {
   const applyBtn = h("button", { type: "button", class: "btn", disabled: true, onclick: () => apply() }, "Apply");
   const apply = () => { if (Object.keys(pend).length) setSettings(pend); pend = {}; applyBtn.disabled = true; };
   const tabs = h("div", { class: "tabs", role: "tablist" });
-  const stack = h("div", { style: { display: "grid" } });
+  const stack = h("div", { style: { display: "grid", gridTemplateColumns: "minmax(0, 1fr)" } });
   const show = (id) => {
     cur = id;
     for (const t of TABS) {
@@ -72,6 +72,7 @@ export function open(tab, from) {
       tabBtns[t.id].tabIndex = t.id === id ? 0 : -1;
       panels[t.id].style.visibility = t.id === id ? "" : "hidden";
       panels[t.id].inert = t.id !== id;
+      panels[t.id].hidden = phone() && t.id !== id; // phones scroll, so a short tab shouldn't keep the tallest tab's height
     }
     w.setTitle(id === "sound" ? "Sound Properties" : id === "me" ? "Pixel Rohan" : "Display Properties");
     w.setIcon(id === "sound" ? "sound" : id === "me" ? "me" : "display");
@@ -123,7 +124,7 @@ export function open(tab, from) {
   }
 
   /* ---------- Screen Saver ---------- */
-  {
+  if (panels.saver) {
     const p = panels.saver, mon = monitor();
     let sc = null;
     const redo = () => { sc = val("saver") === "none" ? null : saverScene(val("saver"), mon.cv, true); if (!sc) { const c = mon.cv.getContext("2d"); mon.cv.width = 190; mon.cv.height = 120; c.fillStyle = "#000"; c.fillRect(0, 0, 190, 120); } };
@@ -163,7 +164,7 @@ export function open(tab, from) {
     wl.checked = val("welcome") !== false;
     wl.addEventListener("change", () => set({ welcome: wl.checked }));
     p.append(prevBox, h("label", { style: { display: "block", marginBottom: "4px" } }, "Color scheme"), lb,
-      h("fieldset", { class: "group", style: { marginTop: "12px" } }, h("legend", {}, "Desktop"),
+      phone() ? null : h("fieldset", { class: "group", style: { marginTop: "12px" } }, h("legend", {}, "Desktop"),
         h("div", { style: { display: "flex", gap: "18px", flexWrap: "wrap" } }, radio("large", "Large icons"), radio("small", "Small icons")),
         h("label", { class: "check", for: "ap-wl", style: { marginTop: "10px" } }, wl, "Show the Welcome window at startup")));
     drawPrev();
@@ -196,7 +197,7 @@ export function open(tab, from) {
   }
 
   /* ---------- Rohan ---------- */
-  {
+  if (panels.me) {
     const p = panels.me;
     const check = (k, id, label) => {
       const c = h("input", { type: "checkbox", id });
