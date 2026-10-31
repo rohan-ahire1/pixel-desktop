@@ -1,6 +1,6 @@
 // Real DOS games, run by js-dos (DOSBox compiled to WebAssembly) inside games/play.html.
 // Each game is a .jsdos bundle in games/. Closing the window removes the frame, which stops the emulator.
-import { h, bus } from "../core.js";
+import { h, bus, phone } from "../core.js";
 import { openWindow, msgbox } from "../wm.js";
 import { launch } from "./index.js";
 
@@ -17,7 +17,7 @@ export function open(arg, from) {
   const g = GAMES[id];
   let fr = null;
   const status = h("span", {}, `Loading ${g.title} (${g.size})…`);
-  const hint = h("span", { class: "fit" }, "Click the game to play");
+  const hint = h("span", { class: "fit" }, phone() ? "Tap the game to play" : "Click the game to play");
   const cover = h("div", { class: "dos-wait", "aria-live": "polite" }, h("p", {}, `Loading ${g.title}…`), h("p", { class: "dim" }, `${g.size} the first time, then it's cached.`));
   const showKeys = () => msgbox({ title: `${g.title}: controls`, icon: g.icon, parent: w, text: g.keys });
 
@@ -27,7 +27,7 @@ export function open(arg, from) {
     menubar: [
       { label: "Game", items: () => [
         { label: "Restart", action: () => { fr.src = fr.src; status.textContent = `Restarting ${g.title}…`; cover.hidden = false; } },
-        { label: "Full Screen", kbd: "F11", action: () => fr.requestFullscreen?.() },
+        { label: "Full Screen", kbd: "F11", disabled: !fr.requestFullscreen, action: () => fr.requestFullscreen?.() },
         { sep: true },
         { label: "Exit", action: () => w.close() },
       ] },
