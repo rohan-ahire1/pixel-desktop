@@ -234,7 +234,6 @@ export function open(tab, from) {
       h("fieldset", { class: "group", style: { marginTop: "12px", display: "grid", gap: "6px" } }, h("legend", {}, "Options"),
         check("me", "me-on", "Show me on the taskbar"),
         check("meMail", "me-mail", "Send mail while you look around"),
-        check("meVoice", "me-voice", "Say \u201cYou've got mail!\u201d"),
         check("meQuiet", "me-quiet", "Quiet mode (no comments)")));
     draw();
     const iv = setInterval(() => cur === "me" && draw(), 1000);

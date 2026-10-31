@@ -92,8 +92,8 @@ const SFX = {
     src.start(t0); lfo.start(t0); src.stop(t0 + 1.5); lfo.stop(t0 + 1.5);
   },
   type() { tone(1200 + Math.random() * 400, 0.01, { vol: 0.025, type: "square" }); },
-  // "You've got mail!": a bright four-note chiptune jingle
-  mail() { [[72, 0], [76, 0.09], [79, 0.18], [84, 0.3]].forEach(([n, at], i) => { tone(NOTE(n), i === 3 ? 0.45 : 0.1, { vol: 0.07, at }); tone(NOTE(n + 12), i === 3 ? 0.3 : 0.06, { type: "triangle", vol: 0.04, at }); }); tone(NOTE(48), 0.5, { type: "triangle", vol: 0.08, at: 0.3 }); },
+  // new mail: a letter flicks through the slot, then two soft notes
+  mail() { noise(0.05, { f: 2400, vol: 0.05, filter: "bandpass", q: 2 }); tone(NOTE(76), 0.12, { type: "sine", vol: 0.07, at: 0.06 }); tone(NOTE(83), 0.28, { type: "sine", vol: 0.06, at: 0.15 }); },
   pop() { tone(300, 0.06, { to: 1200, vol: 0.08, type: "sine" }); },
   lift() { tone(260, 0.12, { to: 620, vol: 0.07, type: "square" }); },
   whee() { tone(900, 0.5, { to: 240, slide: 0.5, vol: 0.05, type: "triangle" }); },

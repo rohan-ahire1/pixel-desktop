@@ -1,7 +1,7 @@
 // "You've got mail!": short notes from Rohan that arrive while you look around. A welcome note, one for the
 // first visit to a few important things, and a tip when you've gone quiet. Never repeats, at most 8 a visit.
 import { bus, settings, store, session } from "./core.js";
-import { sfx, ready } from "./sound.js";
+import { sfx } from "./sound.js";
 import { active } from "./wm.js";
 import { launch, openNode } from "./apps/index.js";
 import { PROJECTS, ABOUT, NOW } from "./data.js";
@@ -64,16 +64,11 @@ function busy() {
   return /^(paint-|terminal-|notepad-|browser:)/.test(id) || ["mines", "calc", "mail"].includes(id);
 }
 
-function voice() {
-  if (!settings.sound || !settings.meVoice || !ready() || !window.speechSynthesis) return;
-  try { const u = new SpeechSynthesisUtterance("You've got mail!"); u.rate = 1.05; u.pitch = 1.1; u.volume = Math.min(1, settings.volume + 0.2); speechSynthesis.speak(u); } catch (e) {}
-}
 function arrive(m) {
   box.push(m);
   if (box.length > 40) box.splice(0, box.length - 40);
   save();
   sfx("mail");
-  setTimeout(voice, 650);
   bus.emit("mail:new", m);
   bus.emit("notify", { title: "You've got mail!", text: m.subject, icon: "mail", silent: true, timeout: 9000, action: () => launch("mail", { read: m.id }) });
 }
