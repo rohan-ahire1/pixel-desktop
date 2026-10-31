@@ -1,6 +1,7 @@
 // Program launcher. Apps load on first use, with an hourglass cursor while they do.
 import { msgbox } from "../wm.js";
 import * as fs from "../fs.js";
+import { playClip } from "../film/clips.js";
 
 const LOAD = {
   welcome: () => import("./welcome.js"),
@@ -46,7 +47,7 @@ export function openNode(id, from = null) {
   if (!n) return null;
   if (fs.isFolder(n)) return launch("explorer", id, from);
   // a project with a live site opens as a working app inside the browser; the rest open their write-up
-  if (n.type === "project") return n.project?.live ? launch("browser", "app:" + id, from) : launch("project", id, from);
+  if (n.type === "project") return playClip(id).then(() => (n.project?.live ? launch("browser", "app:" + id, from) : launch("project", id, from)));
   if (n.type === "doc") return launch("notepad", id, from);
   if (n.type === "pic") return launch("paint", id, from);
   if (n.app) return launch(n.app, n.arg ?? null, from);

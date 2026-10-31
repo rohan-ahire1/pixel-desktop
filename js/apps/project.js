@@ -1,15 +1,18 @@
 // A project's own window: what it is, what it's built with, and a way to see it live.
-import { h, EMAIL } from "../core.js";
+import { h, EMAIL, small } from "../core.js";
 import { icon } from "../px.js";
 import { openWindow } from "../wm.js";
 import { PROJECTS } from "../data.js";
 import { launch, openNode, properties } from "./index.js";
+import { FLOW, playNext } from "../film/clips.js";
 
 export function open(id, from) {
   const p = PROJECTS.find((x) => x.id === id) || PROJECTS[0];
   const i = PROJECTS.indexOf(p);
   const go = (d) => { const n = PROJECTS[(i + d + PROJECTS.length) % PROJECTS.length]; w.close(true); launch("project", n.id); };
   const ask = () => launch("mail", { subject: `About ${p.name}` });
+  const after = PROJECTS.find((x) => x.id === FLOW[FLOW.indexOf(p.id) + 1]);
+  const forward = async () => { await playNext(p.id); if (after) { w.close(true); launch("project", after.id); } };
   const w = openWindow({
     id: "project:" + p.id, posKey: "project", title: p.name, icon: p.icon, app: "project", arg: p.id, w: 600, h: 520, minW: 320, minH: 280, from,
     bodyClass: "paper pad",
@@ -41,6 +44,7 @@ export function open(id, from) {
     h("div", { class: "actions" },
       p.live && h("button", { type: "button", class: "btn blue", onclick: () => launch("browser", "app:" + p.id) }, `Open ${p.name}`),
       h("button", { type: "button", class: "btn", onclick: ask }, "Ask me about it"),
+      !small() && h("button", { type: "button", class: "btn", onclick: forward }, after ? `Next: ${after.name}` : "Next: contact card"),
       h("span", { style: { flex: 1 } }),
       h("button", { type: "button", class: "btn sm", "aria-label": "Previous project", "data-tip": "Previous project", onclick: () => go(-1) }, "‹"),
       h("button", { type: "button", class: "btn sm", "aria-label": "Next project", "data-tip": "Next project", onclick: () => go(1) }, "›")),
