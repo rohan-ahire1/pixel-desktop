@@ -362,12 +362,21 @@ hr.etch { border: 0; border-top: 2px solid var(--chrome-d); border-bottom: 2px s
 
 /* ---------- boot, splash, shutdown, saver ---------- */
 .overlay { position: fixed; inset: 0; z-index: 2000; }
-.bios { background: #000; color: #c9cde0; font: var(--fs-md)/1.55 var(--mono); padding: 28px 32px; overflow: hidden; }
-.bios .hd { display: flex; justify-content: space-between; gap: 20px; color: #fff; }
-.bios .ok { color: #3fd16b; }
-.bios .dim { color: #6b7194; }
-.bios .foot { position: absolute; left: 32px; bottom: 24px; right: 32px; display: flex; justify-content: space-between; color: #6b7194; }
-.bios canvas { image-rendering: pixelated; }
+.film { display: grid; place-items: center; background: #000; overflow: hidden; }
+.film-stage { position: relative; container-type: inline-size; }
+.film-stage canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.film-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 2px 10px; font: var(--fs-sm) var(--ui); color: #c9cde0; background: rgba(0, 0, 0, .6); pointer-events: none; }
+.film-sound { position: absolute; top: 12px; right: 12px; padding: 4px 10px; font: var(--fs-sm) var(--ui); color: #c9cde0; background: #10132e; border: 2px solid #6b7194; cursor: var(--cur-hand, pointer); }
+.film-sound:focus-visible { outline-color: #fff; }
+/* sits exactly on the four boxes drawn by the card scene: 30,136 and 202x56 on the 380x238 film */
+.film-card { position: absolute; left: 7.895%; top: 57.143%; width: 53.158%; height: 23.529%; display: grid; grid-template: 1fr 1fr / 1fr 1fr; gap: 1.053cqw; }
+.film-btn { display: grid; place-items: center; padding: 0; border: 0; font: 600 3.6cqw var(--ui); line-height: 1; color: #10132e; background: #d9dbe6; text-decoration: none; cursor: var(--cur-hand, pointer); }
+.film-btn:hover { filter: brightness(1.08); }
+.film-btn.gold { background: #f7c437; }
+.film-btn.blue, .film-btn.blue:hover { color: #fff; background: #1238c4; }
+.film-btn:focus-visible { outline: 2px dotted #10132e; outline-offset: -5px; }
+.film-btn.blue:focus-visible { outline-color: #fff; }
+.film-card > button:only-of-type { grid-column: 1 / -1; }
 .splash { display: grid; place-items: center; text-align: center; background: var(--navy); color: #fff; }
 .splash .logo { margin: 0 auto 22px; }
 .splash h1 { font-family: var(--display); font-size: clamp(40px, 7vw, 76px); margin: 0; line-height: 1; }

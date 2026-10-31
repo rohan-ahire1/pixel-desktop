@@ -1,5 +1,5 @@
-// Power: the BIOS screen and splash, shut down / restart / stand by, and the screen savers.
-import { h, $, bus, settings, session, reduce, sleep } from "./core.js";
+// Power: the boot film, the splash, shut down / restart / stand by, and the screen savers.
+import { h, $, bus, settings, session, reduce, sleep, small } from "./core.js";
 import { px, drawMap, disc, LOGO, PAL16, K } from "./px.js";
 import { list as winList } from "./wm.js";
 import { sfx } from "./sound.js";
@@ -279,30 +279,6 @@ function skippable(el) {
   addEventListener("keydown", go, true);
   return { wait: (ms) => Promise.race([sleep(ms), p]), get skipped() { return skip; }, off: () => removeEventListener("keydown", go, true) };
 }
-async function bios(ov, sk) {
-  const lines = h("div");
-  const cores = navigator.hardwareConcurrency || 4, kb = (navigator.deviceMemory || 8) * 1048576;
-  const mem = h("span", {}, "0");
-  ov.className = "overlay bios";
-  ov.replaceChildren(
-    h("div", { class: "hd" }, h("div", {}, h("div", {}, "PixelBIOS (C) 2026 Rohan Ahire"), h("div", { class: "dim" }, "Release 1.07, built for the web")), logoCanvas(5)),
-    h("br"), lines,
-    h("div", { class: "foot" }, h("span", {}, "Press any key to skip"), h("span", {}, new Date().toLocaleDateString([], { year: "numeric", month: "2-digit", day: "2-digit" }))));
-  const add = (...k) => { lines.append(h("div", {}, ...k)); };
-  add(`CPU: ${cores}-core browser engine at a comfortable speed`);
-  add("Memory Test: ", mem, " KB ");
-  const t0 = performance.now();
-  while (!sk.skipped) {
-    const f = Math.min(1, (performance.now() - t0) / 700);
-    mem.textContent = Math.round(kb * f).toLocaleString("en-US");
-    if (f >= 1) break;
-    await sk.wait(40);
-  }
-  mem.after(h("span", { class: "ok" }, "OK"));
-  const steps = [["Detecting drive C: ", "PIXELOS"], ["Detecting drive D: ", "PROJECTS"], ["Display: ", `${screen.width}x${screen.height}, 16 colours`], ["Sound: ", "synth ready"], ["Rohan ", "found, coding"], ["Coffee ", "not detected"]];
-  for (const [a, b] of steps) { if (sk.skipped) break; await sk.wait(170); add(a, h("span", { class: b === "not detected" ? "dim" : "ok" }, b)); }
-  if (!sk.skipped) { await sk.wait(220); add(h("br")); add("Starting PixelOS…"); await sk.wait(450); }
-}
 async function splash(ov, sk, ms, text = "ROHAN AHIRE · 2026") {
   ov.className = "overlay splash";
   const bar = h("div", { class: "bar", "aria-hidden": "true" }, h("i"), h("i"), h("i"));
@@ -323,16 +299,16 @@ async function fadeOut(ov) {
   ov.remove();
 }
 
-// Shows the BIOS and splash on the first visit of a session. Resolves when the desktop should appear.
+// Plays the boot film on the first desktop visit of a session (?boot replays it). Resolves when the desktop should appear.
 export async function boot() {
-  // straight to the desktop: first impressions are the welcome window, not a BIOS screen (?boot shows it)
-  if (session.get("booted") || reduce || !new URLSearchParams(location.search).has("boot")) { session.set("booted", "1"); return; }
+  const replay = new URLSearchParams(location.search).has("boot"), seen = session.get("booted");
   session.set("booted", "1");
-  const ov = overlay(), sk = skippable(ov);
-  await bios(ov, sk);
-  if (!sk.skipped) await splash(ov, sk, 1900);
-  sk.off();
-  sfx("startup");
+  if ((seen && !replay) || small()) return;
+  const ov = overlay();
+  ov.classList.add("film"); // black straight away, before the film's code arrives
+  ov.append(h("h1", { class: "sr" }, "Rohan Ahire")); // the page's heading until Welcome opens
+  try { await (await import("./film/player.js")).playBoot(ov); }
+  catch (e) { console.error(e); ov.remove(); return; }
   await fadeOut(ov);
 }
 
