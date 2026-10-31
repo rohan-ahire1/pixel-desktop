@@ -101,8 +101,9 @@ async function diff(a, b, name, box) {
   writeFileSync(join(out, name + ".png"), Buffer.from(png, "base64"));
   return { share, changed, area };
 }
-async function seamless(name, viewport, saved) {
+async function seamless(name, viewport, saved, met) {
   const page = await open({ viewport });
+  if (met) await context.addInitScript(() => localStorage.setItem("pxos-meMet", "true"));
   if (saved) await context.addInitScript((s) => localStorage.setItem("pxos-settings", JSON.stringify(s)), saved);
   const T0 = new Date("2026-11-02T10:00:00").getTime();
   await page.clock.install({ time: T0 });
@@ -140,13 +141,14 @@ async function seamless(name, viewport, saved) {
   expect(d.share <= 0.001, `${name}: ${d.changed}px (${(d.share * 100).toFixed(3)}%) changed at ${JSON.stringify(d.area)}`);
   return `${name} ${d.changed}px${d.area ? " at " + d.area : ""}`;
 }
-for (const [name, viewport, saved] of [
+for (const [name, viewport, saved, met] of [
   ["1280", { width: 1280, height: 800 }],
+  ["1280-returning", { width: 1280, height: 800 }, null, true],
   ["1920", { width: 1920, height: 1080 }],
   ["1366-other-scheme", { width: 1366, height: 768 }, { scheme: "plum", wallpaper: "sunset" }],
   ["1280-no-rohan", { width: 1280, height: 800 }, { me: false }],
   ["1280-no-welcome", { width: 1280, height: 800 }, { welcome: false }],
-]) await test(`the last boot frame matches the live desktop at ${name}`, async () => console.log("  " + (await seamless(name, viewport, saved))));
+]) await test(`the last boot frame matches the live desktop at ${name}`, async () => console.log("  " + (await seamless(name, viewport, saved, met))));
 await test("skipping after the landing leaves him standing on his spot", async () => {
   const page = await open();
   await page.goto(base + "/");
@@ -192,17 +194,25 @@ await test("sound stays off until asked for", async () => {
   expect((await page.locator(".film-sound").textContent()) === "Sound on", "the button did not turn sound on");
   expect(await film(page).count(), "the sound button skipped the film");
 });
-await test("a second load in a session skips the boot, and ?boot replays it", async () => {
+await test("reload plays the boot again", async () => {
   const page = await open();
   await past(page, { timeout: 3000 });
+  await page.reload();
+  await film(page, "boot").waitFor({ timeout: 3000 });
+  await page.keyboard.press("x");
+  await film(page).waitFor({ state: "detached", timeout: 2000 });
+  await usable(page);
+});
+await test("back navigation skips the boot", async () => {
+  const page = await open();
+  await past(page, { timeout: 3000 });
+  await page.goto(base + "/privacy.html");
   const loaded = [];
   page.on("request", (r) => { if (/js\/film\/(player|coffee-panic|one-cut)/.test(r.url())) loaded.push(r.url()); });
-  await page.reload();
+  await page.goBack();
   await usable(page);
-  expect(!(await page.evaluate(() => window.__films.length)), "a film appeared on reload");
-  expect(!loaded.length, "film code loaded on a repeat visit: " + loaded.join(" "));
-  await page.goto(base + "/?boot");
-  await film(page, "boot").waitFor({ timeout: 3000 });
+  expect(!(await page.evaluate(() => window.__films.length)), "a film appeared on back navigation");
+  expect(!loaded.length, "film code loaded on back navigation: " + loaded.join(" "));
 });
 await test("reduced motion shows a still, then goes straight in", async () => {
   const page = await open({ ...DESKTOP, reducedMotion: "reduce" });

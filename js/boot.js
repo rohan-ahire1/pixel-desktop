@@ -1,5 +1,5 @@
 // Power: the boot film, the splash, shut down / restart / stand by, and the screen savers.
-import { h, $, bus, settings, session, reduce, sleep, small } from "./core.js";
+import { h, $, bus, settings, reduce, sleep, small } from "./core.js";
 import { px, drawMap, disc, LOGO, PAL16, K } from "./px.js";
 import { list as winList } from "./wm.js";
 import { sfx } from "./sound.js";
@@ -300,14 +300,13 @@ async function fadeOut(ov) {
   ov.remove();
 }
 
-// Plays the boot film on the first desktop visit of a session (?boot replays it). Resolves when the desktop is in front.
+// Plays the boot film on every full desktop load, except coming back through history. Resolves when the desktop is in front.
 // The film runs over the real desktop, so open (the Welcome window) is called once, in time for the wash to show it.
 export async function boot(open) {
-  const replay = new URLSearchParams(location.search).has("boot"), seen = session.get("booted");
-  session.set("booted", "1");
+  const back = performance.getEntriesByType("navigation")[0]?.type === "back_forward";
   let opened = false, title = null;
   const desk = async () => { if (opened) return; opened = true; await open(); if ($(".win h1")) title?.remove(); };
-  if ((seen && !replay) || small()) return desk();
+  if (back || small()) return desk();
   const ov = overlay();
   ov.classList.add("film"); // black straight away, before the film's code arrives
   title = h("h1", { class: "sr" }, "Rohan Ahire"); // the page's heading until Welcome opens
