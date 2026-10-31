@@ -309,22 +309,37 @@ function menu(x, y) {
     { label: "Send me away", action: sendAway },
   ], { x, y, restoreFocus: hit });
 }
+const spot = () => Math.round(CW * (small() ? 0.4 : 0.3));
+function greet(back) {
+  const met = store.get("meMet", false), hr = new Date().getHours(), late = hr >= 23 || hr < 5;
+  pose("wave", 2.4, backToIdle);
+  if (back) speak("I'm back!");
+  else if (!met) {
+    store.set("meMet", true);
+    speak("Hey, I'm Rohan! Well, the pixel version. Want a quick tour?", { buttons: [["Sure", startTour, true], ["Maybe later", () => speak("Cool. Right-click me if you change your mind.")]] });
+  } else {
+    const day = new Date().getDay(), weekend = day === 0 || day === 6, morning = hr >= 5 && hr < 11;
+    speak(late ? "Welcome back! Up late? Same." : pick(["Welcome back!", "Oh hey, you're back!", "Welcome back. I've been coding."]
+      .concat(morning ? ["Morning! Coffee's on.", "Good morning. Early start?"] : [], weekend ? ["Here on a weekend? Me too.", "Weekend project time?"] : [], day === 5 && hr >= 16 ? ["Friday evening. Ship it or leave it?"] : [])));
+  }
+}
 function arrive(back) {
   if (!running) return;
   me.x = -24; me.y = 0; me.dir = 1; parts.length = 0;
-  const met = store.get("meMet", false), hr = new Date().getHours(), late = hr >= 23 || hr < 5;
-  walkTo(Math.round(CW * (small() ? 0.4 : 0.3)), () => {
-    pose("wave", 2.4, backToIdle);
-    if (back) speak("I'm back!");
-    else if (!met) {
-      store.set("meMet", true);
-      speak("Hey, I'm Rohan! Well, the pixel version. Want a quick tour?", { buttons: [["Sure", startTour, true], ["Maybe later", () => speak("Cool. Right-click me if you change your mind.")]] });
-    } else {
-      const day = new Date().getDay(), weekend = day === 0 || day === 6, morning = hr >= 5 && hr < 11;
-      speak(late ? "Welcome back! Up late? Same." : pick(["Welcome back!", "Oh hey, you're back!", "Welcome back. I've been coding."]
-        .concat(morning ? ["Morning! Coffee's on.", "Good morning. Early start?"] : [], weekend ? ["Here on a weekend? Me too.", "Weekend project time?"] : [], day === 5 && hr >= 16 ? ["Friday evening. Ship it or leave it?"] : [])));
-    }
-  });
+  walkTo(spot(), () => greet(back));
+}
+// the boot film lands him on his spot: screen px of the sprite's top-left, and his scale
+export function meDock() {
+  if (!running) return null;
+  const r = cv.getBoundingClientRect();
+  return { x: r.left + (spot() - GW / 2) * S, y: r.top + (CH - GH) * S, S };
+}
+// and lets go of him there, so he skips the walk in
+export function meLand() {
+  if (!running || me.st !== "off") return;
+  me.x = spot(); me.y = 0; me.dir = 1; parts.length = 0;
+  greet(false);
+  dirty = true; draw();
 }
 
 /* ---------- pick me up ---------- */
