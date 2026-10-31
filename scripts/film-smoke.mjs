@@ -37,6 +37,7 @@ want(cut.LEN >= 10 && cut.LEN < 15, `film is ${cut.LEN.toFixed(2)}s, wanted 10 t
 STAMPS.forEach((s) => want(seen[s] / FPS >= 0.4, `${s} shows for ${(seen[s] / FPS).toFixed(2)}s, wanted at least 0.4s`));
 
 /* Coffee Panic: both paths through the throw, and no full-screen flash storm */
+const LIVE = { vw: 1280, vh: 800, fit: 800 / 750, ox: 0, oy: 0, bar: 752, ink: { x: 600, y: 400 }, me: { x: 330, y: 626, S: 3 } };
 function boot(thrownAt) {
   const s = panic.startClock();
   let flashes = 0, lit = false, n = 0;
@@ -45,6 +46,7 @@ function boot(thrownAt) {
     panic.advance(s, 1 / FPS);
     fills = [];
     panic.frame(c, s.t, true, s.w);
+    if (s.t >= panic.MELT) panic.wash(c, s.t, s.w, LIVE);
     if (depth) { fail.push("unbalanced save in Coffee Panic"); depth = 0; }
     const white = fills.some(([col, , , w, h]) => /^rgba\(255,255,255/.test(col) && w >= panic.W && h >= panic.H);
     if (white && !lit) flashes++;
@@ -57,6 +59,11 @@ want(auto.secs <= panic.END + 1.4, `boot without a click takes ${auto.secs.toFix
 want(clicked.secs < auto.secs, "throwing early should finish sooner");
 want(auto.flashes <= 3, `${auto.flashes} full-screen flashes, wanted at most 3`);
 panic.frame(c, panic.STILL, true, 0);
+fills = [];
+panic.wash(c, panic.END - 0.05, panic.END, LIVE);
+want(fills.length === 0, "the last boot frame still paints something over the desktop");
+panic.frame(c, panic.STILL + 0.2, true, 0, true);
+panic.wash(c, 4.2, 4.2, { ...LIVE, me: null });
 
 want(bad === 0, `${bad} non-finite drawing values`);
 console.log(`One Cut ${cut.LEN.toFixed(2)}s, ${frames} frames at ${FPS} fps`);

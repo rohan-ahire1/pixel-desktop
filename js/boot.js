@@ -4,6 +4,7 @@ import { px, drawMap, disc, LOGO, PAL16, K } from "./px.js";
 import { list as winList } from "./wm.js";
 import { sfx } from "./sound.js";
 import { drawMe, GW, GH } from "./me-sprite.js";
+import { meDock, meLand } from "./me.js";
 
 /* ---------- screen savers ---------- */
 export const SAVERS = [
@@ -299,17 +300,24 @@ async function fadeOut(ov) {
   ov.remove();
 }
 
-// Plays the boot film on the first desktop visit of a session (?boot replays it). Resolves when the desktop should appear.
-export async function boot() {
+// Plays the boot film on the first desktop visit of a session (?boot replays it). Resolves when the desktop is in front.
+// The film runs over the real desktop, so open (the Welcome window) is called once, in time for the wash to show it.
+export async function boot(open) {
   const replay = new URLSearchParams(location.search).has("boot"), seen = session.get("booted");
   session.set("booted", "1");
-  if ((seen && !replay) || small()) return;
+  let opened = false, title = null;
+  const desk = async () => { if (opened) return; opened = true; await open(); if ($(".win h1")) title?.remove(); };
+  if ((seen && !replay) || small()) return desk();
   const ov = overlay();
   ov.classList.add("film"); // black straight away, before the film's code arrives
-  ov.append(h("h1", { class: "sr" }, "Rohan Ahire")); // the page's heading until Welcome opens
-  try { await (await import("./film/player.js")).playBoot(ov); }
-  catch (e) { console.error(e); ov.remove(); return; }
-  await fadeOut(ov);
+  title = h("h1", { class: "sr" }, "Rohan Ahire"); // the page's heading until Welcome opens
+  ov.append(title);
+  import("./apps/welcome.js").catch(() => {}); // so the window is ready when the wash reaches it
+  let seamless = false;
+  try { seamless = await (await import("./film/player.js")).playBoot(ov, { desk, dock: meDock, land: meLand }); }
+  catch (e) { console.error(e); ov.remove(); return desk(); }
+  await desk();
+  if (seamless) ov.remove(); else await fadeOut(ov);
 }
 
 /* ---------- shut down ---------- */

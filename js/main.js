@@ -25,9 +25,9 @@ initDesktop();
 initTaskbar();
 initMe();
 initInbox();
-const ready = () => { bus.emit("shell:ready"); if (settings.welcome !== false) launch("welcome"); };
-initPower({ onReady: ready });
-boot().then(ready);
+const welcome = () => (settings.welcome !== false ? launch("welcome") : null);
+initPower({ onReady: () => { bus.emit("shell:ready"); welcome(); } });
+boot(welcome).then(() => bus.emit("shell:ready"));
 
 /* ---------- window switcher (Alt+Tab, or Alt+` where the browser keeps Alt+Tab) ---------- */
 let sw = null;

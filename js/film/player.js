@@ -66,28 +66,64 @@ function soundButton(ov) {
   return () => on;
 }
 
-// Resolves when the desktop should appear. The caller owns the overlay and fades it out.
-export async function playBoot(ov) {
+// the screen-sized canvas the wash runs on; the overlay goes see-through so the real desktop shows behind it
+function pourOver(ov) {
+  const cv = h("canvas", { class: "film-wash", "aria-hidden": "true" });
+  ov.append(cv);
+  ov.classList.add("poured");
+  return cv.getContext("2d");
+}
+// the live page, read fresh every frame so the film lands on whatever is really there
+function scene(c, f, dock) {
+  const vw = innerWidth, vh = innerHeight, fit = Math.min(vw / f.W, vh / f.H), win = $(".win")?.getBoundingClientRect();
+  if (c.canvas.width !== vw) c.canvas.width = vw;
+  if (c.canvas.height !== vh) c.canvas.height = vh;
+  return { vw, vh, fit, ox: (vw - f.W * fit) / 2, oy: (vh - f.H * fit) / 2, bar: $(".taskbar").offsetTop, me: dock(),
+    ink: win ? { x: win.left + win.width * 0.7, y: win.top + win.height * 0.8 } : { x: vw / 2, y: vh / 2 } };
+}
+// the landing moves the real taskbar, window and icons, and leaves nothing to put back
+function shake(f, t, x) {
+  const move = (el, y) => { el.style.translate = y ? `0 ${y}px` : ""; };
+  move($(".taskbar"), f.dipAt(t));
+  document.querySelectorAll(".win, .dicon").forEach((el) => { const r = el.getBoundingClientRect(); move(el, -f.hop(t, Math.abs(r.left + r.width / 2 - x), el.matches(".win") ? 22 : 30)); });
+}
+
+// Resolves true if the film ended on the desktop by itself, so the overlay is already see-through. The caller owns the overlay.
+export async function playBoot(ov, { desk, dock, land }) {
   const f = await import("./coffee-panic.js");
   const { c } = mount("boot", f.W, f.H, f.LABEL, ov);
-  if (await fontsOrSkip(ov)) return;
+  if (await fontsOrSkip(ov)) return false;
   document.fonts?.ready.then(f.resetLayers);
-  if (reduce) { f.frame(c, f.STILL, true, 0); return pause(ov, 900); }
-  const clock = f.startClock(), sound = soundButton(ov);
+  if (reduce) { f.frame(c, f.STILL, true, 0); await pause(ov, 900); return false; }
+  const clock = f.startClock(), sound = soundButton(ov), gone = !dock();
   return new Promise((done) => {
-    let shown = -1;
-    const finish = () => { stop(); off(); done(); };
+    let shown = -1, wash = null;
+    const finish = (seamless) => {
+      stop(); off();
+      if (wash) shake(f, f.END, 0);
+      if (clock.t >= f.SLAM) { wash.clearRect(0, 0, wash.canvas.width, wash.canvas.height); land(); }
+      done(seamless);
+    };
     const off = listen(ov, (e) => {
       if (e.type === "pointerdown" && f.canThrow(clock)) clock.thrown = true;
-      else finish();
+      else finish(false);
     });
     const stop = loop((dt) => {
-      const was = clock.t;
+      const was = clock.t, reached = (at) => was < at && clock.t >= at;
       f.advance(clock, dt);
-      if (sound() && ready()) f.CUES.forEach(([at, play]) => { if (was < at && clock.t >= at) play(); });
-      if (clock.t >= f.END) return finish();
+      if (sound() && ready()) f.CUES.forEach(([at, play]) => { if (reached(at)) play(); });
+      if (clock.t >= f.END) return finish(true);
+      if (reached(f.OPEN)) desk();
+      if (reached(f.MELT)) { wash = pourOver(ov); shown = -1; }
+      if (reached(f.WAVE)) { land(); shown = -1; }
       const n = Math.floor(clock.w * FPS);
-      if (n !== shown) { shown = n; f.frame(c, clock.t, true, clock.w); }
+      if (n === shown) return;
+      shown = n;
+      f.frame(c, clock.t, true, clock.w, gone);
+      if (!wash) return;
+      const d = scene(wash, f, dock);
+      f.wash(wash, clock.t, clock.w, d);
+      if (clock.t >= f.SLAM) shake(f, clock.t, d.me ? d.me.x : d.vw / 2);
     });
   });
 }

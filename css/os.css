@@ -365,6 +365,10 @@ hr.etch { border: 0; border-top: 2px solid var(--chrome-d); border-bottom: 2px s
 .film { display: grid; place-items: center; background: #000; overflow: hidden; }
 .film-stage { position: relative; container-type: inline-size; }
 .film-stage canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.film-wash { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; }
+.film.poured { background: none; }
+.film.poured .film-stage { z-index: 1; }
+.film.poured .film-sound { display: none; }
 .film-hint { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); padding: 2px 10px; font: var(--fs-sm) var(--ui); color: #c9cde0; background: rgba(0, 0, 0, .6); pointer-events: none; }
 .film-sound { position: absolute; top: 12px; right: 12px; padding: 4px 10px; font: var(--fs-sm) var(--ui); color: #c9cde0; background: #10132e; border: 2px solid #6b7194; cursor: var(--cur-hand, pointer); }
 .film-sound:focus-visible { outline-color: #fff; }
