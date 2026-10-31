@@ -1,5 +1,5 @@
 // Minesweeper: three levels, safe first click, chording, long-press to flag, best times.
-import { h, bus, store, announce } from "../core.js";
+import { h, bus, store, announce, phone } from "../core.js";
 import { K, px, disc, drawMap } from "../px.js";
 import { openWindow, msgbox } from "../wm.js";
 import { sfx } from "../sound.js";
@@ -88,6 +88,11 @@ export function open(arg, from) {
     const avail = Math.min(innerWidth - 40, (w ? w.el.parentElement.clientWidth : innerWidth) - 40);
     const availH = (w ? w.el.parentElement.clientHeight : innerHeight) - 150;
     scale = Math.max(1, Math.min(2, Math.floor(avail / (L.c * CS)), Math.floor(availH / (L.r * CS))));
+    if (phone()) {
+      // as big as the screen allows, on whole device pixels so the art stays sharp; a board too big to fit pans
+      const dpr = devicePixelRatio || 1, wide = w.el.parentElement.clientWidth - 30, tall = w.el.parentElement.clientHeight - (innerWidth > innerHeight ? 100 : 190);
+      scale = Math.max(1.5, Math.floor(Math.min(3, wide / (L.c * CS), tall / (L.r * CS)) * dpr) / dpr);
+    }
     cv.style.width = L.c * CS * scale + "px"; cv.style.height = L.r * CS * scale + "px";
   }
   function reset(level) {
@@ -202,8 +207,8 @@ export function open(arg, from) {
   cv.addEventListener("focus", () => drawCell(cur)); cv.addEventListener("blur", () => kbdUsed && drawCell(cur));
 
   const w = openWindow({
-    id: "mines", title: "Minesweeper", icon: "mines", app: "mines", w: "auto", h: "auto", resizable: false, maximizable: false, remember: false, from, bodyClass: "",
-    onClose: () => clearInterval(timer),
+    id: "mines", title: "Minesweeper", icon: "mines", app: "mines", w: "auto", h: "auto", resizable: false, maximizable: false, remember: false, from, bodyClass: phone() ? "mwrap" : "",
+    onClose: () => { clearInterval(timer); removeEventListener("resize", fit); },
     menubar: [
       { label: "Game", items: () => [
         { label: "New", kbd: "F2", action: () => reset() },
@@ -215,13 +220,13 @@ export function open(arg, from) {
         { label: "Exit", action: () => w.close() },
       ] },
       { label: "Help", items: () => [
-        { label: "How to Play", action: () => msgbox({ title: "Minesweeper", icon: "mines", parent: w, text: "Open every square that isn't a mine.\nA number shows how many mines touch that square.\nRight-click (or long-press) to plant a flag.\nClick a number with the right flags around it to open its neighbours.\nYour first click is always safe." }) },
+        { label: "How to Play", action: () => msgbox({ title: "Minesweeper", icon: "mines", parent: w, text: phone() ? "Open every square that isn't a mine.\nA number shows how many mines touch that square.\nTouch and hold to plant a flag.\nTap a number with the right flags around it to open its neighbours.\nYour first tap is always safe." : "Open every square that isn't a mine.\nA number shows how many mines touch that square.\nRight-click (or long-press) to plant a flag.\nClick a number with the right flags around it to open its neighbours.\nYour first click is always safe." }) },
         { label: "Help Topics", icon: "help", kbd: "F1", action: () => launch("help", "programs") },
       ] },
     ],
     build(w) {
-      w.body.style.alignItems = "flex-start";
-      w.body.append(h("div", { class: "mines" }, h("div", { class: "mhead" }, h("div", { class: "led" }, ledL), face, h("div", { class: "led" }, ledR)), grid));
+      if (!phone()) w.body.style.alignItems = "flex-start";
+      w.body.append(h("div", { class: "mines" }, h("div", { class: "mhead" }, h("div", { class: "led" }, ledL), face, h("div", { class: "led" }, ledR)), grid, phone() ? h("p", { class: "mhint" }, "Tap to open. Hold to flag.") : null));
     },
   });
   if (w._built) return w;
@@ -229,6 +234,7 @@ export function open(arg, from) {
   w.el.addEventListener("keydown", (e) => { if (e.key === "F2") { e.preventDefault(); reset(); } });
   const LEVEL_ARG = typeof arg === "string" && LEVELS[arg] ? arg : null;
   reset(LEVEL_ARG);
+  if (phone()) addEventListener("resize", fit);
   setTimeout(() => cv.focus({ preventScroll: true }), 0);
   return w;
 }
