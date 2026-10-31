@@ -1,5 +1,5 @@
 // Paint: 96x64 pixel art in the 16-colour palette. Save to My Documents, download a PNG, or make it the wallpaper.
-import { h, bus, uid, settings, setSettings, store } from "../core.js";
+import { h, bus, uid, settings, setSettings, store, phone } from "../core.js";
 import { PAL16, K, drawMap } from "../px.js";
 import { openWindow, msgbox, list as winList } from "../wm.js";
 import { sfx } from "../sound.js";
@@ -236,7 +236,7 @@ export function open(arg, from) {
         { label: "Invert Colors", kbd: "Ctrl+I", action: invert },
       ] },
       { label: "Help", items: () => [
-        { label: "Tips", action: () => msgbox({ title: "Paint", icon: "info", parent: w, text: "Left-click draws with the front color. Right-click draws with the back color.\nRight-click a swatch to set the back color. X swaps them.\nKeys: P pencil, B brush, E eraser, F fill, I pick, A airbrush, L line, R box, S filled box, O ellipse." }) },
+        { label: "Tips", action: () => msgbox({ title: "Paint", icon: "info", parent: w, text: phone() ? "Draw with your finger. Tap a swatch to pick the color.\nThe box next to the swatches swaps the front and back colors, and the eraser paints with the back color." : "Left-click draws with the front color. Right-click draws with the back color.\nRight-click a swatch to set the back color. X swaps them.\nKeys: P pencil, B brush, E eraser, F fill, I pick, A airbrush, L line, R box, S filled box, O ellipse." }) },
         { label: "Help Topics", icon: "help", kbd: "F1", action: () => launch("help", "programs") },
       ] },
     ],
@@ -292,6 +292,11 @@ export function open(arg, from) {
   setColors(); setTool("pencil");
   const fit = () => Math.max(2, Math.min(6, Math.floor((stage.clientWidth - 24) / W), Math.floor((stage.clientHeight - 24) / H)));
   setZoom(fit());
+  if (phone()) {
+    // fill the screen on whole device pixels, and again after a rotate
+    const dpr = devicePixelRatio || 1, fill = () => stage.clientWidth && setZoom(Math.max(2, Math.floor(Math.min((stage.clientWidth - 16) / W, (stage.clientHeight - 16) / H) * dpr) / dpr));
+    const ro = new ResizeObserver(fill); ro.observe(stage); w.on(() => ro.disconnect());
+  }
   if (docId) {
     const d = fs.getDoc(docId);
     if (d && d.data) { const im = new Image(); im.onload = () => { c.drawImage(im, 0, 0, W, H); }; im.src = d.data; }
