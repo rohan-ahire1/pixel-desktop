@@ -29,6 +29,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/os.css">
 <link rel="stylesheet" href="css/phone.css">
+<script>
+  // a screen too big for the home-screen version goes to the desktop one; same test as index.html, so they can't bounce
+  if (!matchMedia("(max-width: 760px), (pointer: coarse) and (max-height: 500px)").matches) location.replace("./");
+</script>
 </head>
 <body class="phone">
 <canvas id="bg" aria-hidden="true"></canvas>
@@ -36,6 +40,21 @@
 <main id="desk" aria-label="PixelOS phone"></main>
 <nav class="p-dock" aria-label="Dock"></nav>
 <div id="live" class="sr" aria-live="polite"></div>
+<noscript>
+  <div class="nojs">
+    <h1>Rohan Ahire</h1>
+    <p>Full-stack engineer at Pattern. I build SaaS products, data pipelines and AI tools. This site is a little desktop that needs JavaScript; here's the short version.</p>
+    <ul>
+      <li><a href="https://recoup.rohanahire.com">Recoup</a>: collections software for small unpaid invoices.</li>
+      <li><a href="https://pointer.rohanahire.com">Pointer</a>: an interactive course on 15 coding-interview patterns.</li>
+      <li>Scoutline: an AI lead-research engine.</li>
+      <li>Multibagger: a research platform that backtests NSE strategies and paper-trades the survivors.</li>
+      <li><a href="https://flaggo.rohanahire.com">Flaggo</a>: a geography game with daily challenges and spaced repetition.</li>
+      <li><a href="https://coachmate.rohanahire.com">Coachmate</a>: a chess coach that finds the mistakes you keep making.</li>
+    </ul>
+    <p><a href="mailto:ahirerohan3.14@gmail.com">ahirerohan3.14@gmail.com</a> · <a href="https://github.com/rohan-ahire1">GitHub</a> · <a href="https://linkedin.com/in/rohan-ahire1">LinkedIn</a></p>
+  </div>
+</noscript>
 <script type="module" src="js/phone.js"></script>
 <!-- Cloudflare Web Analytics -->
 <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "f62e4450b9e3440e8d6b5a615493a2e5"}'></script>
