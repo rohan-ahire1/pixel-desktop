@@ -42,7 +42,7 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
-html { font-synthesis: none; }
+html { font-synthesis: none; -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   overflow: hidden;
