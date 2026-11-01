@@ -1,13 +1,13 @@
 // Plays the films: the boot, the reel and the project clips all run in one black overlay.
 // Scenes never touch the page and this file never draws, so either can change alone.
-import { h, $, EMAIL, reduce, session, settings, sleep } from "../core.js";
+import { h, $, EMAIL, phone, reduce, session, settings, sleep } from "../core.js";
 import { ready } from "../sound.js";
 
 const FPS = 30, QUIET = ["Shift", "Control", "Alt", "Meta", "CapsLock"];
 
 function mount(kind, W, H, label, ov = h("div", { class: "overlay" })) {
   const cv = h("canvas", { width: W, height: H, role: "img", "aria-label": label });
-  const stage = h("div", { class: "film-stage", style: { aspectRatio: W + " / " + H, width: `min(100vw, ${(W / H) * 100}vh)` } }, cv);
+  const stage = h("div", { class: "film-stage", style: kind === "boot" ? { position: "absolute", inset: "0" } : { aspectRatio: W + " / " + H, width: `min(100vw, ${(W / H) * 100}vh)` } }, cv);
   ov.classList.add("film");
   ov.dataset.film = kind;
   ov.append(stage);
@@ -73,24 +73,33 @@ function pourOver(ov) {
   ov.classList.add("poured");
   return cv.getContext("2d");
 }
+// the space the boot fills: on a phone the overlay, which follows the browser bars
+const room = (ov) => (phone() ? [ov.clientWidth, ov.clientHeight] : [innerWidth, innerHeight]);
+// the boot fills it, whatever it is now; true if the canvas had to change and the frame is gone
+function fill(c, f, ov) {
+  f.size(...room(ov), phone());
+  if (c.canvas.width === f.W && c.canvas.height === f.H) return false;
+  c.canvas.width = f.W; c.canvas.height = f.H;
+  return true;
+}
 // the live page, read fresh every frame so the film lands on whatever is really there
-function scene(c, f, dock) {
-  const vw = innerWidth, vh = innerHeight, fit = Math.min(vw / f.W, vh / f.H), win = $(".win")?.getBoundingClientRect();
+function scene(c, f, dock, ov) {
+  const [vw, vh] = room(ov), fit = vw / f.W, me = dock();
   if (c.canvas.width !== vw) c.canvas.width = vw;
   if (c.canvas.height !== vh) c.canvas.height = vh;
-  return { vw, vh, fit, ox: (vw - f.W * fit) / 2, oy: (vh - f.H * fit) / 2, bar: $(".taskbar").offsetTop, me: dock(),
-    ink: win ? { x: win.left + win.width * 0.7, y: win.top + win.height * 0.8 } : { x: vw / 2, y: vh / 2 } };
+  return { vw, vh, fit, bar: me?.bar ?? $(".taskbar").offsetTop, me };
 }
 // the landing moves the real taskbar, window and icons, and leaves nothing to put back
 function shake(f, t, x) {
   const move = (el, y) => { el.style.translate = y ? `0 ${y}px` : ""; };
-  move($(".taskbar"), f.dipAt(t));
-  document.querySelectorAll(".win, .dicon").forEach((el) => { const r = el.getBoundingClientRect(); move(el, -f.hop(t, Math.abs(r.left + r.width / 2 - x), el.matches(".win") ? 22 : 30)); });
+  move($(phone() ? ".p-dock" : ".taskbar"), f.dipAt(t));
+  document.querySelectorAll(phone() ? ".p-app" : ".win, .dicon").forEach((el) => { const r = el.getBoundingClientRect(); move(el, -f.hop(t, Math.abs(r.left + r.width / 2 - x), el.matches(".win") ? 22 : 30)); });
 }
 
 // Resolves true if the film ended on the desktop by itself, so the overlay is already see-through. The caller owns the overlay.
 export async function playBoot(ov, { desk, dock, land }) {
   const f = await import("./coffee-panic.js");
+  f.size(...room(ov), phone());
   const { c } = mount("boot", f.W, f.H, f.LABEL, ov);
   if (await fontsOrSkip(ov)) return false;
   document.fonts?.ready.then(f.resetLayers);
@@ -98,8 +107,9 @@ export async function playBoot(ov, { desk, dock, land }) {
   const clock = f.startClock(), sound = soundButton(ov), gone = !dock();
   return new Promise((done) => {
     let shown = -1, wash = null;
+    const tapped = () => finish(true); // once the wash has passed, a tap belongs to the page
     const finish = (seamless) => {
-      stop(); off();
+      stop(); off(); removeEventListener("pointerdown", tapped, true);
       if (wash) shake(f, f.END, 0);
       if (clock.t >= f.SLAM) { wash.clearRect(0, 0, wash.canvas.width, wash.canvas.height); land(); }
       done(seamless);
@@ -115,13 +125,15 @@ export async function playBoot(ov, { desk, dock, land }) {
       if (clock.t >= f.END) return finish(true);
       if (reached(f.OPEN)) desk();
       if (reached(f.MELT)) { wash = pourOver(ov); shown = -1; }
+      if (phone() && reached(f.CLEAR)) { ov.classList.add("through"); addEventListener("pointerdown", tapped, true); }
       if (reached(f.WAVE)) { land(); shown = -1; }
+      if (fill(c, f, ov)) shown = -1;
       const n = Math.floor(clock.w * FPS);
       if (n === shown) return;
       shown = n;
       f.frame(c, clock.t, true, clock.w, gone);
       if (!wash) return;
-      const d = scene(wash, f, dock);
+      const d = scene(wash, f, dock, ov);
       f.wash(wash, clock.t, clock.w, d);
       if (clock.t >= f.SLAM) shake(f, clock.t, d.me ? d.me.x : d.vw / 2);
     });
