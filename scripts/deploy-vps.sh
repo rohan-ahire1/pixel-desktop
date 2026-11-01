@@ -7,7 +7,7 @@ host="${DEPLOY_HOST:-server}"
 live=/var/www/rohanahire.com
 backup="$HOME/backups/rohanahire.com-$(date +%Y%m%d%H%M%S)"
 exclude=(--exclude .git --exclude .factory --exclude .claude --exclude .github --exclude .impeccable --exclude .DS_Store
-  --exclude docs --exclude scripts --exclude tests --exclude node_modules --exclude _v1 --exclude AGENTS.md --exclude CLAUDE.md --exclude factory.json)
+  --exclude docs --exclude scripts --exclude tests --exclude node_modules --exclude _v1 --exclude README.md --exclude AGENTS.md --exclude CLAUDE.md --exclude factory.json)
 if [ "$(hostname)" = "$host" ]; then
   mkdir -p "$HOME/backups" && cp -a "$live" "$backup"
   rsync -a --delete "${exclude[@]}" ./ "$live/"
