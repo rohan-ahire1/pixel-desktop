@@ -1,5 +1,5 @@
 // PixelOS for phones: a home screen of app icons over the same wallpaper, apps and windows as the desktop.
-import { h, $, bus, settings, onTick, runTicks, reduce, fmtTime, EMAIL, announce } from "./core.js";
+import { h, $, bus, settings, sleep, onTick, runTicks, reduce, fmtTime, EMAIL, announce } from "./core.js";
 import { icon, tickIcons, shadow } from "./px.js";
 import { applyScheme } from "./theme.js";
 import { initWallpaper } from "./wallpaper.js";
@@ -128,3 +128,26 @@ if (vv) {
 
 // the address bar should say rohanahire.com, not /phone.html
 history.replaceState(null, "", "./");
+
+/* ---------- the boot film: every full load except coming back through history, with the home screen already behind it ---------- */
+const WAIT_FILM = 2000; // a slow connection gets the home screen instead
+async function bootFilm() {
+  if (performance.getEntriesByType("navigation")[0]?.type === "back_forward") return;
+  const ov = h("div", { class: "overlay film", role: "status", "aria-live": "polite" });
+  document.body.append(ov);
+  me.style.visibility = "hidden";
+  const free = () => { me.style.visibility = ""; };
+  // his feet stay where the canvas puts them; the taskbar he lands on here is the bottom of his box
+  const dock = () => { const r = me.getBoundingClientRect(), S = r.width / GW; return { x: r.left, y: r.top + (r.height * GH) / (GH + 2) - GH * S, S, bar: r.bottom }; };
+  const land = () => { if (me.style.visibility) { free(); waveTill = (performance.now() - t0) / 1000 + 2.2; } };
+  let seamless = false;
+  try {
+    const code = await Promise.race([Promise.all([import("./film/player.js"), import("./film/coffee-panic.js")]), sleep(WAIT_FILM)]);
+    if (code) seamless = await code[0].playBoot(ov, { desk: () => {}, dock, land });
+    else seamless = true; // nothing has played, so there's nothing to fade
+  } catch (e) { console.error(e); seamless = true; }
+  free();
+  if (!seamless && !reduce) { ov.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260, easing: "steps(4, end)", fill: "forwards" }); await sleep(260); }
+  ov.remove();
+}
+bootFilm();

@@ -3,13 +3,26 @@ import { tone, noise, NOTE, sfx } from "../sound.js";
 import { LOGO } from "../px.js";
 import { clamp, lerp, seeded, FONT, map, sprite as drawSprite } from "./kit.js";
 
-export const W = 1200, H = 750, END = 6.8, HOLD = 2.1, STILL = 3.04;
+export const END = 5.9, HOLD = 2.1, STILL = 3.04;
 export const LABEL = "Animated boot sequence: the BIOS panics because coffee is not detected, a thrown mug fixes it, a caffeine surge launches pixel Rohan into the air, coffee washes the BIOS away to show the desktop, and Rohan slams down on the taskbar.";
 // OPEN: the real desktop gets its Welcome window, just before the wash shows it. WAVE: the real Rohan takes over.
-export const OPEN = 2.85, MELT = 3.1, SLAM = 3.72, WAVE = 4.85;
-const P = 4, FLOOR = 590, SY = FLOOR - 168, HIGH = 24, SX = 620;
-const WAIT = 1.3, IMPACT = 2.5, SURGE = 2.62, LAUNCH = 2.98, DROP = 3.42, CATCH = 3.95, CAT_ON = 4.18, SIP = 4.3, STAMP = 5.3, LEAVE = 5.6, INK_OFF = 6.15;
-const LY = (i) => 118 + i * 28;
+export const OPEN = 2.85, MELT = 3.1, CLEAR = MELT + 0.8, SLAM = 3.72, WAVE = 4.85;
+const P = 4, HIGH = 24;
+const WAIT = 1.3, IMPACT = 2.5, SURGE = 2.62, LAUNCH = 2.98, DROP = 3.42, CATCH = 3.95, CAT_ON = 4.18, SIP = 4.3, LEAVE = 5.3;
+export let W, H;
+let FLOOR, SY, SX, LEAD, MX, PHONE;
+// the film redraws for the window: at least 900x750 of its own pixels, and whichever side has more room gets the extra, so nothing stretches or crops
+// on a phone it's composed for the hand: upright, the text sits over Rohan; sideways, he stands beside it, clear of a notch
+export function size(vw, vh, phone = false) {
+  const tall = phone && vh >= vw, fit = tall ? Math.min(vw / 480, vh / 800) : phone ? Math.min(vw / 900, vh / 520) : Math.min(vw / 900, vh / 750);
+  W = Math.round(vw / fit); H = Math.round(vh / fit); PHONE = phone;
+  MX = tall ? 24 : phone ? 72 : 48;
+  FLOOR = tall ? H - 150 : phone ? H - 56 : Math.round((H * 59) / 75); SY = FLOOR - 168;
+  SX = tall ? Math.round((W - 144) / 2) : Math.max(620, Math.round((W * 31) / 60));
+  LEAD = Math.round(28 * Math.max(1, Math.min(1.4, H / 750)));
+}
+size(1200, 750);
+const LY = (i) => 118 + i * LEAD;
 const sprite = (c, x, y, o) => drawSprite(c, x, y, o, P);
 
 const MUG = ["EEEEEE..", "RRRRRRRR", "RRRRRR.R", "RRRRRR.R", "RRRRRRRR", "rRRRRr..", ".rrrr..."];
@@ -17,7 +30,7 @@ const CAT = ["..K.....K.......", ".KWK...KWK......", ".KWWKKKWWK....K.", ".KWWWW
 const CAT2 = CAT.map((r, j) => (j > 1 && j < 7 ? r.slice(0, 11) + "." + r.slice(11) : r));
 const mug = (c, x, y, s = 3) => map(c, MUG, Math.round(x), Math.round(y), s, { E: "#231a16", R: "#d94d4a", r: "#a93533" });
 function spun(c, x, y, a, s = 3) { const m = 4 * s, n = Math.round((10 * s) / 3); c.save(); c.translate(x + m, y + n); c.rotate(a); mug(c, -m, -n, s); c.restore(); }
-const slot = (c) => { c.font = FONT(22); return 48 + c.measureText("Coffee ").width; };
+const slot = (c) => { c.font = FONT(22); return MX + c.measureText("Coffee ").width; };
 
 /* the BIOS page: POST, then the panic, then the surge */
 const LINES = [
@@ -29,10 +42,19 @@ const LINES = [
   ["Sound: ", "synth ready", "screaming"],
   ["Rohan ", "found, coding", "found, asleep"],
 ];
+const SHORT = [
+  ["CPU: ", "8-core browser", "0.3 MHz, crying"],
+  ["Memory: ", "16,777,216 KB OK", "640 KB, enough?"],
+  ["Drive C: ", "PIXELOS", "WHERE DID IT GO"],
+  ["Drive D: ", "PROJECTS", "ON FIRE"],
+  ["Display: ", "16 colours", "2, both sad"],
+  ["Sound: ", "synth ready", "screaming"],
+  ["Rohan ", "found, coding", "found, asleep"],
+];
 const BAD = (i) => 1.12 + (6 - i) * 0.055, FIX = (i) => SURGE + i * 0.05;
 const SPLATS = (() => { const r = seeded(17), a = []; for (let i = 0; i < 18; i++) a.push({ x: (r() - 0.3) * 460, y: (r() - 0.45) * 190, s: 8 + Math.floor(r() * 3) * 8, drip: 20 + r() * 150 }); return a; })();
 const DROPS = (() => { const r = seeded(29), a = []; for (let i = 0; i < 46; i++) a.push({ vx: (r() - 0.3) * 760, vy: -120 - r() * 520, s: 4 + Math.floor(r() * 2) * 4 }); return a; })();
-const STREAKS = (() => { const r = seeded(41), a = []; for (let i = 0; i < 16; i++) a.push({ y: Math.floor(r() * 150) * 4, v: 1400 + r() * 1800, w: 120 + r() * 320, o: r() * W }); return a; })();
+const STREAKS = (() => { const r = seeded(41), a = []; for (let i = 0; i < 48; i++) a.push({ y: r() * 0.8, v: 1400 + r() * 1800, w: 120 + r() * 320, o: r() * 1200 }); return a; })();
 function splats(c, t) {
   const d = t - IMPACT - 0.08;
   if (d < 0) return;
@@ -48,20 +70,20 @@ function bios(c, t, w, snap) {
   const panic = t >= 1.12 && t < IMPACT, tint = panic ? clamp((t - 1.12) / 0.3) * 0.16 : 0;
   c.font = FONT(22); c.textBaseline = "alphabetic";
   const txt = (s, x, y, col) => { c.fillStyle = col; c.fillText(s, x, y); return x + c.measureText(s).width; };
-  txt("PixelBIOS (C) 2026 Rohan Ahire", 48, 56, "#fff");
-  txt("Release 1.07, built for the web", 48, 84, "#6b7194");
+  txt("PixelBIOS (C) 2026 Rohan Ahire", MX, 56, "#fff");
+  txt(PHONE ? "Release 1.07, phone edition" : "Release 1.07, built for the web", MX, 84, "#6b7194");
   map(c, LOGO, W - 110, 32, 5, { K: "#6f8cff", W: "#fff" });
-  LINES.forEach((l, i) => {
+  (PHONE ? SHORT : LINES).forEach((l, i) => {
     if (t < 0.08 + i * 0.1) return;
     const bad = t >= BAD(i) && t < FIX(i), jx = bad ? Math.round(Math.sin(w * 37 + i * 2.1) * 3) : 0, jy = bad ? Math.round(Math.cos(w * 29 + i) * 2) : 0;
-    const x = txt(l[0], 48 + jx, LY(i) + jy, "#c9cde0");
+    const x = txt(l[0], MX + jx, LY(i) + jy, "#c9cde0");
     if (bad) txt(l[2], x, LY(i) + jy, "#ff6a63");
     else if (i === 0 && t >= SURGE) { const v = clamp((t - SURGE) / 0.42); txt(Math.round(33 + 9966 * v * v).toLocaleString("en-US") + " MHz", x, LY(0), "#f7c437"); }
     else if (i === 1 && t < 0.48) txt(Math.round(16777216 * clamp((t - 0.18) / 0.3)).toLocaleString("en-US") + " KB", x, LY(1), "#c9cde0");
     else txt(l[1], x, LY(i), "#3fd16b");
   });
   if (t >= 0.85) {
-    const x = txt("Coffee ", 48, LY(7), "#c9cde0");
+    const x = txt("Coffee ", MX, LY(7), "#c9cde0");
     if (t < 1.05) txt(".".repeat(1 + Math.floor((t - 0.85) / 0.05)), x, LY(7), "#c9cde0");
     else if (t < IMPACT) { const jx = Math.round(Math.sin(w * 53) * 3); txt("NOT DETECTED", x + jx, LY(7), "#ff6a63"); }
     else {
@@ -71,18 +93,19 @@ function bios(c, t, w, snap) {
       txt("DETECTED", x + 34, LY(7), "#3fd16b");
     }
   }
-  if (t >= 1.5 && t < IMPACT + 0.08 && (t === HOLD ? Math.floor(w * 3) % 2 === 0 : true)) { c.fillStyle = "#d94d4a"; c.fillRect(44, LY(9) - 24, 500, 34); txt("BOOT HALTED. Insert coffee to continue.", 56, LY(9), "#fff"); }
+  if (t >= 1.5 && t < IMPACT + 0.08 && (t === HOLD ? Math.floor(w * 3) % 2 === 0 : true)) { const s = PHONE ? "BOOT HALTED. Insert coffee." : "BOOT HALTED. Insert coffee to continue."; c.fillStyle = "#d94d4a"; c.fillRect(MX - 4, LY(9) - 24, PHONE ? c.measureText(s).width + 24 : 500, 34); txt(s, MX + 8, LY(9), "#fff"); }
   if (t >= SURGE) {
     const v = clamp((t - SURGE) / 0.42), hot = ["#f7c437", "#f39c3d", "#ff6a63", "#f39c3d"][Math.floor(t * 12) % 4];
-    c.font = FONT(58, true); txt("CAFFEINE " + Math.round(9000 * v) + "%", 48, LY(10) + 8, hot);
-    c.fillStyle = "#20275e"; c.fillRect(48, LY(10) + 24, 520, 24);
-    c.fillStyle = hot; c.fillRect(48, LY(10) + 24, 520 * v, 24);
+    const bar = Math.min(520, W - MX * 2);
+    c.font = FONT(PHONE ? 50 : 58, true); txt("CAFFEINE " + Math.round(9000 * v) + "%", MX, LY(10) + 8, hot);
+    c.fillStyle = "#20275e"; c.fillRect(MX, LY(10) + 24, bar, 24);
+    c.fillStyle = hot; c.fillRect(MX, LY(10) + 24, bar * v, 24);
     c.font = FONT(22);
     c.fillStyle = "rgba(111,140,255,.55)";
-    STREAKS.forEach((s) => { const x = (s.o + (t - SURGE) * s.v) % (W + s.w) - s.w; c.fillRect(x, s.y, s.w, 4); });
+    STREAKS.slice(0, Math.ceil(W / 75)).forEach((s) => { const x = (s.o + (t - SURGE) * s.v) % (W + s.w) - s.w; c.fillRect(x, Math.floor(s.y * H / 4) * 4, s.w, 4); });
   }
   c.fillStyle = "#6b7194"; for (let x = 0; x < W; x += 16) c.fillRect(x, FLOOR, 10, 4);
-  txt("Press any key to skip", 48, H - 28, "#6b7194");
+  txt(PHONE ? "Tap to skip" : "Press any key to skip", MX, H - 28, "#6b7194");
   splats(c, t);
   if (tint) { c.fillStyle = "rgba(170,20,20," + tint + ")"; c.fillRect(0, 0, W, H); }
   const d = t - IMPACT - 0.08;
@@ -96,19 +119,19 @@ export const hop = (t, dist, h) => { const p = (t - SLAM - dist / 2400) / 0.3; r
 /* Doom's wipe, poured: each column of the BIOS falls on its own beat with coffee on top of it, and what's left behind is the real desktop */
 const COLS = 75;
 const LAG = (() => { const r = seeded(4), a = [Math.floor(r() * 14)]; for (let i = 1; i < COLS; i++) a[i] = Math.max(0, Math.min(14, a[i - 1] + Math.floor(r() * 3) - 1)); return a; })();
-let biosLayer = null, shot = null;
-export const resetLayers = () => { biosLayer = shot = null; };
+let shot = null;
+export const resetLayers = () => { shot = null; };
 const layer = (w, h) => { const l = document.createElement("canvas"); l.width = w; l.height = h; return l; };
 const scanlines = (c) => { c.fillStyle = "rgba(0,0,0,.16)"; for (let y = 0; y < H; y += 4) c.fillRect(0, y, W, 2); };
-// the BIOS as the screen shows it: letterboxed on black, without the mug that's about to fly
+// the BIOS as the screen shows it, without the mug that's about to fly
 function biosShot(d) {
   if (shot && shot.width === d.vw && shot.height === d.vh) return shot;
-  if (!biosLayer) { biosLayer = layer(W, H); const b = biosLayer.getContext("2d"); bios(b, MELT - 0.01, MELT - 0.01, true); scanlines(b); }
+  const biosLayer = layer(W, H), b = biosLayer.getContext("2d");
+  bios(b, MELT - 0.01, MELT - 0.01, true); scanlines(b);
   shot = layer(d.vw, d.vh);
   const s = shot.getContext("2d");
   s.imageSmoothingEnabled = false;
-  s.fillStyle = "#000"; s.fillRect(0, 0, d.vw, d.vh);
-  s.drawImage(biosLayer, d.ox, d.oy, W * d.fit, H * d.fit);
+  s.drawImage(biosLayer, 0, 0, d.vw, d.vh);
   return shot;
 }
 function pour(c, t, d) {
@@ -147,7 +170,7 @@ function hero(c, t, w, gone) {
     const bob = Math.round(Math.sin(w * 8) * 3);
     sprite(c, SX, SY, { pose: "pointUp", look: -1, lookY: -1 });
     mug(c, SX + 104, SY + 12 + bob);
-    if (Math.floor(w * 3) % 2 === 0) { c.font = FONT(26, true); const s = "CLICK TO THROW", tw = c.measureText(s).width; c.fillStyle = "#f7c437"; c.fillRect(SX - 20, SY - 64, tw + 32, 44); c.fillStyle = "#10132e"; c.fillText(s, SX - 4, SY - 32); }
+    if (Math.floor(w * 3) % 2 === 0) { c.font = FONT(26, true); const s = PHONE ? "TAP TO THROW" : "CLICK TO THROW", tw = c.measureText(s).width; c.fillStyle = "#f7c437"; c.fillRect(SX - 20, SY - 64, tw + 32, 44); c.fillStyle = "#10132e"; c.fillText(s, SX - 4, SY - 32); }
   } else if (t < IMPACT) sprite(c, SX, SY, { pose: "pointUp", look: -1, lookY: -1, mouth: 3 });
   else if (t < SURGE) sprite(c, SX, SY, { pose: "thumbs", mouth: 2 });
   else if (t < LAUNCH) sprite(c, SX + (Math.floor(w * 40) % 2 ? 4 : -4), SY, { pose: "startle", mouth: 2 });
@@ -164,10 +187,10 @@ const behind = (c, d, draw) => { c.save(); c.beginPath(); c.rect(0, 0, d.vw, d.b
 function landing(c, t, w, d) {
   const { x, y: rest, S: p } = d.me, u = p / P, s = Math.max(1, Math.round(p * 0.75)), y = rest + dipAt(t), turn = Math.floor(t * 18) * (Math.PI / 2);
   const me = (o, q = p, ax = x, ay = y) => drawSprite(c, ax, ay, o, q);
-  if (t < CATCH) { const q = clamp((t - MELT) / (CATCH - MELT)); spun(c, lerp(d.ox + slot(c) * d.fit, x + 132 * u, q), lerp(d.oy + (LY(7) - 20) * d.fit, rest + 66 * u, q * q) - Math.sin(q * Math.PI) * 70, turn, s); }
+  if (t < CATCH) { const q = clamp((t - MELT) / (CATCH - MELT)); spun(c, lerp(slot(c) * d.fit, x + 132 * u, q), lerp((LY(7) - 20) * d.fit, rest + 66 * u, q * q) - Math.sin(q * Math.PI) * 70, turn, s); }
   if (t < DROP) return;
   const air = Math.floor(t * 16);
-  if (t < SLAM) { const e = ((t - DROP) / (SLAM - DROP)) ** 2; me({ pose: "flail", f: air, lift: air % 2 ? 2 : 1, mouth: 3 }, Math.round(lerp(P * d.fit, p, e)), lerp(d.ox + SX * d.fit, x, e), lerp(d.oy + HIGH * d.fit, rest, e)); }
+  if (t < SLAM) { const e = ((t - DROP) / (SLAM - DROP)) ** 2; me({ pose: "flail", f: air, lift: air % 2 ? 2 : 1, mouth: 3 }, Math.round(lerp(P * d.fit, p, e)), lerp(SX * d.fit, x, e), lerp(HIGH * d.fit, rest, e)); }
   else if (t < SLAM + 0.16) { me({ pose: "stand", mouth: 3 }); dust(c, x + 18 * p, d.bar - 6, (t - SLAM) / 0.16, 6); }
   else if (t < CATCH) me({ pose: "point" });
   else if (t < SIP) { me({ pose: "point", mouth: t >= CAT_ON && t < CAT_ON + 0.1 ? 3 : 2 }); mug(c, x + 132 * u, y + 66 * u, s); steam(c, x + 144 * u, y + 62 * u, w); }
@@ -180,19 +203,6 @@ function landing(c, t, w, d) {
     behind(c, d, () => map(c, e > 0.24 && Math.floor(w * 3) % 2 ? CAT2 : CAT, Math.round(cx - off * 120), Math.round(lerp(lerp(-60, head, q * q), d.bar + 20, off * off) - Math.sin(off * Math.PI) * 70) - boing, s, { K: "#10132e", W: "#eef0f8", P: "#ff8fb0" }));
     if (e > 0 && e < 0.36) { c.fillStyle = "#f7c437"; for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4, r = (34 + e * 360) * u, b = i % 2 ? 4 : 8; c.fillRect(Math.round(x + 18 * p + Math.cos(a) * r), Math.round(rest + 4 * p + Math.sin(a) * r * 0.6), b, b); } }
   }
-}
-// stamped on the real window, and gone again before the film hands over
-function stamp(c, t, at) {
-  const d = t - STAMP, off = Math.ceil(clamp((t - INK_OFF) / 0.4) * 4) / 4;
-  if (d < 0 || off >= 1) return;
-  const p = clamp(d / 0.1), z = 1 + 2.6 * (1 - p) * (1 - p), ink = "#d94d4a", s = "CAFFEINATED";
-  c.save(); c.translate(at.x, at.y); c.rotate(-0.12); c.scale(z, z); c.globalAlpha = (0.55 + 0.35 * p) * (1 - off);
-  c.font = FONT(36, true);
-  const bw = c.measureText(s).width + 96, x = -Math.round(bw / 2);
-  c.fillStyle = ink; c.fillRect(x, -36, bw, 6); c.fillRect(x, 30, bw, 6); c.fillRect(x, -36, 6, 72); c.fillRect(x + bw - 6, -36, 6, 72);
-  map(c, LOGO, x + 16, -24, 4, { K: ink });
-  c.fillStyle = ink; c.fillText(s, x + 72, 13);
-  c.restore();
 }
 function powerOn(c, t) {
   const p = clamp(t / 0.24), open = p < 0.4 ? 0 : (p - 0.4) / 0.6, h = Math.round(open * open * H), lw = Math.round(clamp(p / 0.4) * W);
@@ -223,12 +233,11 @@ export function frame(c, t, crt, w, gone) {
   if (t < 0.24) powerOn(c, t);
   if (crt) scanlines(c);
 }
-// the screen-sized canvas over the desktop, clear wherever the wash has passed. d comes from the live page; once Rohan has taken over and the stamp has gone it paints nothing
+// the screen-sized canvas over the desktop, clear wherever the wash has passed. d comes from the live page; once Rohan has taken over and the cat has gone it paints nothing
 export function wash(c, t, w, d) {
   c.save(); c.imageSmoothingEnabled = false;
   c.clearRect(0, 0, d.vw, d.vh);
   pour(c, t, d);
-  stamp(c, t, d.ink);
   if (d.me) landing(c, t, w, d);
   c.restore();
 }
@@ -262,10 +271,6 @@ export const CUES = [
   [CAT_ON + 0.1, () => sfx("meow")],
   [SIP, () => noise(0.3, { f: 900, fTo: 2200, vol: 0.06, filter: "bandpass" })],
   [WAVE + 0.4, () => noise(0.09, { f: 2600, vol: 0.05 })],
-  [STAMP, () => {
-    tone(140, 0.14, { to: 50, vol: 0.2, type: "sine" }); noise(0.06, { f: 400, vol: 0.12 });
-    [72, 76, 79, 84, 88].forEach((n, i) => tone(NOTE(n), i === 4 ? 0.4 : 0.07, { vol: 0.045, at: 0.08 + i * 0.07 }));
-  }],
 ];
 
 /* the film's clock: it waits at the throw until the visitor clicks, or for WAIT seconds */
