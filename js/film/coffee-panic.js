@@ -3,12 +3,12 @@ import { tone, noise, NOTE, sfx } from "../sound.js";
 import { LOGO } from "../px.js";
 import { clamp, lerp, seeded, FONT, map, sprite as drawSprite } from "./kit.js";
 
-export const W = 1200, H = 750, END = 6.8, HOLD = 2.1, STILL = 3.04;
+export const W = 1200, H = 750, END = 5.9, HOLD = 2.1, STILL = 3.04;
 export const LABEL = "Animated boot sequence: the BIOS panics because coffee is not detected, a thrown mug fixes it, a caffeine surge launches pixel Rohan into the air, coffee washes the BIOS away to show the desktop, and Rohan slams down on the taskbar.";
 // OPEN: the real desktop gets its Welcome window, just before the wash shows it. WAVE: the real Rohan takes over.
 export const OPEN = 2.85, MELT = 3.1, SLAM = 3.72, WAVE = 4.85;
 const P = 4, FLOOR = 590, SY = FLOOR - 168, HIGH = 24, SX = 620;
-const WAIT = 1.3, IMPACT = 2.5, SURGE = 2.62, LAUNCH = 2.98, DROP = 3.42, CATCH = 3.95, CAT_ON = 4.18, SIP = 4.3, STAMP = 5.3, LEAVE = 5.6, INK_OFF = 6.15;
+const WAIT = 1.3, IMPACT = 2.5, SURGE = 2.62, LAUNCH = 2.98, DROP = 3.42, CATCH = 3.95, CAT_ON = 4.18, SIP = 4.3, LEAVE = 5.3;
 const LY = (i) => 118 + i * 28;
 const sprite = (c, x, y, o) => drawSprite(c, x, y, o, P);
 
@@ -181,19 +181,6 @@ function landing(c, t, w, d) {
     if (e > 0 && e < 0.36) { c.fillStyle = "#f7c437"; for (let i = 0; i < 8; i++) { const a = (i * Math.PI) / 4, r = (34 + e * 360) * u, b = i % 2 ? 4 : 8; c.fillRect(Math.round(x + 18 * p + Math.cos(a) * r), Math.round(rest + 4 * p + Math.sin(a) * r * 0.6), b, b); } }
   }
 }
-// stamped on the real window, and gone again before the film hands over
-function stamp(c, t, at) {
-  const d = t - STAMP, off = Math.ceil(clamp((t - INK_OFF) / 0.4) * 4) / 4;
-  if (d < 0 || off >= 1) return;
-  const p = clamp(d / 0.1), z = 1 + 2.6 * (1 - p) * (1 - p), ink = "#d94d4a", s = "CAFFEINATED";
-  c.save(); c.translate(at.x, at.y); c.rotate(-0.12); c.scale(z, z); c.globalAlpha = (0.55 + 0.35 * p) * (1 - off);
-  c.font = FONT(36, true);
-  const bw = c.measureText(s).width + 96, x = -Math.round(bw / 2);
-  c.fillStyle = ink; c.fillRect(x, -36, bw, 6); c.fillRect(x, 30, bw, 6); c.fillRect(x, -36, 6, 72); c.fillRect(x + bw - 6, -36, 6, 72);
-  map(c, LOGO, x + 16, -24, 4, { K: ink });
-  c.fillStyle = ink; c.fillText(s, x + 72, 13);
-  c.restore();
-}
 function powerOn(c, t) {
   const p = clamp(t / 0.24), open = p < 0.4 ? 0 : (p - 0.4) / 0.6, h = Math.round(open * open * H), lw = Math.round(clamp(p / 0.4) * W);
   c.fillStyle = "#000"; c.fillRect(0, 0, W, (H - h) / 2); c.fillRect(0, (H + h) / 2, W, (H - h) / 2);
@@ -223,12 +210,11 @@ export function frame(c, t, crt, w, gone) {
   if (t < 0.24) powerOn(c, t);
   if (crt) scanlines(c);
 }
-// the screen-sized canvas over the desktop, clear wherever the wash has passed. d comes from the live page; once Rohan has taken over and the stamp has gone it paints nothing
+// the screen-sized canvas over the desktop, clear wherever the wash has passed. d comes from the live page; once Rohan has taken over and the cat has gone it paints nothing
 export function wash(c, t, w, d) {
   c.save(); c.imageSmoothingEnabled = false;
   c.clearRect(0, 0, d.vw, d.vh);
   pour(c, t, d);
-  stamp(c, t, d.ink);
   if (d.me) landing(c, t, w, d);
   c.restore();
 }
@@ -262,10 +248,6 @@ export const CUES = [
   [CAT_ON + 0.1, () => sfx("meow")],
   [SIP, () => noise(0.3, { f: 900, fTo: 2200, vol: 0.06, filter: "bandpass" })],
   [WAVE + 0.4, () => noise(0.09, { f: 2600, vol: 0.05 })],
-  [STAMP, () => {
-    tone(140, 0.14, { to: 50, vol: 0.2, type: "sine" }); noise(0.06, { f: 400, vol: 0.12 });
-    [72, 76, 79, 84, 88].forEach((n, i) => tone(NOTE(n), i === 4 ? 0.4 : 0.07, { vol: 0.045, at: 0.08 + i * 0.07 }));
-  }],
 ];
 
 /* the film's clock: it waits at the throw until the visitor clicks, or for WAIT seconds */
