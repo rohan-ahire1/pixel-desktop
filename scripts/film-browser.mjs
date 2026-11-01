@@ -233,14 +233,17 @@ await test("reduced motion shows a still, then goes straight in", async () => {
   await card(page).getByRole("button", { name: "Close" }).click();
   await film(page).waitFor({ state: "detached", timeout: 1000 });
 });
-await test("the phone site never plays a film and offers no reel", async () => {
+await test("the phone site plays the boot on every load, a tap skips it, and it offers no reel", async () => {
   const page = await open({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   await page.goto(base + "/");
+  await film(page, "boot").waitFor({ timeout: 3000 });
+  await page.touchscreen.tap(200, 400);
+  await film(page).waitFor({ state: "detached", timeout: 2000 });
   await page.locator(".p-status b").waitFor({ timeout: 3000 }); // phone.js shows "/" in the address bar, so the URL can't tell
-  await page.waitForTimeout(1500);
-  expect(!(await page.evaluate(() => window.__films.length)), "a film appeared");
-  expect(!(await film(page).count()), "film overlay on the phone");
+  expect(await page.evaluate(() => getComputedStyle(document.querySelector(".p-me")).visibility === "visible"), "Rohan is still hidden");
   expect(!(await page.getByText("Watch the reel").count()), "the reel is offered on the phone");
+  await page.reload();
+  await film(page, "boot").waitFor({ timeout: 3000 });
   await shot(page, "phone");
 });
 await test("a phone-sized desktop window never plays the boot", async () => {

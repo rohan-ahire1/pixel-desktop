@@ -14,7 +14,7 @@ Rohan Ahire's portfolio, rohanahire.com: a pixel-art desktop OS in the browser, 
 ## Rules
 
 - Commit straight to `main` and push to `origin` (a bare repo on the VPS). No pull requests. There is no GitHub repo for this code, so the gates run on the VPS and the kit's GitHub workflows and push guard are left out on purpose. `factory update` puts them back: remove them again, and keep rule 1 below as written here.
-- Films never play on phones, autoplay only for the boot, skip on any key or click, and show a still for reduced motion.
+- The boot is the only film that plays on phones. Films autoplay only for the boot, skip on any key, click or tap, and show a still for reduced motion.
 - Nothing is deployed unless Rohan asks. `scripts/deploy-vps.sh` is the only way to deploy.
 
 <!-- factory:start -->
