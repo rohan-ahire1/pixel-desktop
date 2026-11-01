@@ -6,9 +6,9 @@ The source of [rohanahire.com](https://rohanahire.com), my portfolio. It's a pix
 
 Phones get a separate, simpler site (`phone.html`).
 
-| The boot screen | Doom in a window | The phone site |
+| The boot screen | Doom in a window | The boot on a phone |
 |---|---|---|
-| ![BIOS screen reporting that coffee was not detected](docs/readme/boot.png) | ![Doom running inside a PixelOS window](docs/readme/doom.png) | ![The phone version of the site](docs/readme/phone.png) |
+| ![BIOS screen reporting that coffee was not detected](docs/readme/boot.png) | ![Doom running inside a PixelOS window](docs/readme/doom.png) | ![The boot screen on the phone site](docs/readme/phone.png) |
 
 ## What's on the desktop
 
@@ -32,7 +32,7 @@ Every icon, cursor and sprite on the desktop is drawn by `js/px.js` and `js/me-s
 
 The boot in `js/film/coffee-panic.js` is a short film drawn on canvas. The BIOS panics because coffee is not detected, you click to throw a mug, and a wash of coffee melts the screen away. The real desktop opens underneath while the film is still playing, and the overlay turns see-through so the wash runs over live windows.
 
-Scenes never touch the page and the player in `js/film/player.js` never draws. That split is what lets the tests run every frame without a browser. Any key or click skips the film, reduced motion gets a still image, and phones never see it.
+Scenes never touch the page and the player in `js/film/player.js` never draws. That split is what lets the tests run every frame without a browser. Any key, click or tap skips the film, and reduced motion gets a still image. It redraws to fit any window, so it also plays on the phone site, the only film that does.
 
 The Reel app plays a second film, One Cut (`js/film/one-cut.js`): a single continuous shot through six projects, where each project hands an object to the next.
 
