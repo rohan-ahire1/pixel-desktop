@@ -10,7 +10,7 @@
   ],
   "app": {
     "start": "python3 -m http.server $PORT --bind 127.0.0.1",
-    "routes": ["/", "/phone.html", "/privacy.html", "/404.html"],
+    "routes": ["/", "/phone.html", "/404.html"],
     "ignore": ["cloudflareinsights", "Failed to load resource: net::ERR_FAILED"]
   },
   "protect": [],

@@ -1,6 +1,6 @@
 # The factory
 
-> **In this repo:** the workflows, the guard hook and auto-merge were left out. Work goes straight to `main` on the VPS bare repo and the public GitHub repo, and the gates run on the VPS with `node .factory/gates.mjs --shots "/,/phone.html,/privacy.html,/404.html"`. Ignore the sections below that need GitHub.
+> **In this repo:** the workflows, the guard hook and auto-merge were left out. Work goes straight to `main` on the VPS bare repo and the public GitHub repo, and the gates run on the VPS with `node .factory/gates.mjs --shots "/,/phone.html,/404.html"`. Ignore the sections below that need GitHub.
 
 <!-- Managed by the factory kit: `factory update` overwrites this file. -->
 

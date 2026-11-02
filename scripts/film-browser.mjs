@@ -206,7 +206,7 @@ await test("reload plays the boot again", async () => {
 await test("back navigation skips the boot", async () => {
   const page = await open();
   await past(page, { timeout: 3000 });
-  await page.goto(base + "/privacy.html");
+  await page.goto(base + "/404.html");
   const loaded = [];
   page.on("request", (r) => { if (/js\/film\/(player|coffee-panic|one-cut)/.test(r.url())) loaded.push(r.url()); });
   await page.goBack();
