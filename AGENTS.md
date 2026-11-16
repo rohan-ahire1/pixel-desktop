@@ -9,11 +9,11 @@ Rohan Ahire's portfolio, rohanahire.com: a pixel-art desktop OS in the browser, 
 - `js/apps/`: one module per app. `js/fs.js`: the file tree and desktop icons. `js/data.js`: projects.
 - `js/film/`: the boot film and the reel. Scenes are separate from `player.js`, and all of it loads lazily.
 - `css/os.css`: styles.
-- `scripts/`: the syntax check, film tests and `deploy-vps.sh`.
+- `scripts/`: the syntax check, film tests, unit tests in `scripts/test/` and `deploy-vps.sh`.
 
 ## Rules
 
-- Commit straight to `main`. No pull requests. The code lives in a bare repo on the VPS and in the public GitHub repo `rohan-ahire1/pixel-desktop`: push to both and keep them in sync. The gates run on the VPS, and the kit's GitHub workflows and push guard are left out on purpose. `factory update` puts them back: remove them again, and keep rule 1 below as written here.
+- Commit straight to `main`. No pull requests. The code lives in a bare repo on the VPS and in the public GitHub repo `rohan-ahire1/pixel-desktop`: push to both and keep them in sync. The gates run on the VPS, and the kit's workflows and push guard stay out on purpose. `.github/workflows/ci.yml` is a small hand-written check that runs the syntax, film-smoke and unit gates on GitHub. `factory update` puts them back: remove them again, and keep rule 1 below as written here.
 - The boot is the only film that plays on phones. Films autoplay only for the boot, skip on any key, click or tap, and show a still for reduced motion.
 - Nothing is deployed unless Rohan asks. `scripts/deploy-vps.sh` is the only way to deploy.
 
