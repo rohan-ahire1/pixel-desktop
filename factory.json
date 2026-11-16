@@ -6,6 +6,7 @@
   "gates": [
     { "name": "syntax", "run": "node scripts/check-syntax.mjs" },
     { "name": "film-smoke", "run": "node scripts/film-smoke.mjs" },
+    { "name": "unit", "run": "node --test \"scripts/test/*.test.mjs\"" },
     { "name": "film-browser", "run": "node scripts/film-browser.mjs" }
   ],
   "app": {
